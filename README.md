@@ -6,8 +6,8 @@
 ### Docker
 
 ```bash
-git clone https://git.idrl.site/pengwei/idrlnet_public
-cd idrlnet_public
+git clone https://github.com/idrl-lab/idrlnet
+cd idrlnet
 docker build . -t idrlnet_dev
 docker run -it -p [EXPOSED_SSH_PORT]:22 -v [CURRENT_WORK_DIR]:/root/pinnnet idrlnet_dev:latest bash
 ```
@@ -15,8 +15,8 @@ docker run -it -p [EXPOSED_SSH_PORT]:22 -v [CURRENT_WORK_DIR]:/root/pinnnet idrl
 ### Anaconda
 
 ```bash
-git clone https://git.idrl.site/pengwei/idrlnet_public
-cd idrlnet_public
+git clone https://github.com/idrl-lab/idrlnet
+cd idrlnet
 conda create -n idrlnet_dev python=3.8 -y
 conda activate idrlnet_dev
 pip install -r requirements.txt
