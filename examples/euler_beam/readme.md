@@ -1,0 +1,1 @@
+See [docs for Euler–Bernoulli beam](../../docs/user/get_started/2_euler_beam.md)

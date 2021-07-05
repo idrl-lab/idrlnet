@@ -1,0 +1,1 @@
+See [docs for Simple Poisson](../../docs/user/get_started/1_simple_poisson.md).

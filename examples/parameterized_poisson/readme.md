@@ -1,0 +1,1 @@
+See [docs for Parameterized Poisson](../../docs/user/get_started/6_parameterized_poisson.md).

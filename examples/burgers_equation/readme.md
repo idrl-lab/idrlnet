@@ -1,0 +1,1 @@
+See [docs for Burgers' equations](../../docs/user/get_started/3_burgers_equation.md).

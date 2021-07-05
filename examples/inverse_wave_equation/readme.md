@@ -1,0 +1,1 @@
+See [docs for inverse wave equation](../../docs/user/get_started/5_inverse_wave_equation.md)
