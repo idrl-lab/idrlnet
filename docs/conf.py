@@ -64,7 +64,7 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 # for MarkdownParser
-from sphinx_markdown_parser.parser import MarkdownParser
+from sphinx_markdown_parser.parser import MarkdownParser # noqa
 
 
 # def setup(app):

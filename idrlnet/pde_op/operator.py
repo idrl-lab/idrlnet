@@ -11,7 +11,16 @@ from typing import Union, List
 from idrlnet.torch_util import integral, _replace_derivatives, torch_lambdify
 from idrlnet.variable import Variables
 
-__all__ = ['NormalGradient', 'Difference', 'Derivative', 'Curl', 'Divergence', 'ICNode', 'Int1DNode', 'IntEq']
+__all__ = [
+    "NormalGradient",
+    "Difference",
+    "Derivative",
+    "Curl",
+    "Divergence",
+    "ICNode",
+    "Int1DNode",
+    "IntEq",
+]
 
 
 class NormalGradient(PdeNode):
@@ -21,48 +30,53 @@ class NormalGradient(PdeNode):
         self.dim = dim
         self.time = time
 
-        x, y, z, normal_x, normal_y, normal_z, t = symbols('x y z normal_x normal_y normal_z t')
+        x, y, z, normal_x, normal_y, normal_z, t = symbols(
+            "x y z normal_x normal_y normal_z t"
+        )
 
-        input_variables = {'x': x,
-                           'y': y,
-                           'z': z,
-                           't': t}
+        input_variables = {"x": x, "y": y, "z": z, "t": t}
         if self.dim == 1:
-            input_variables.pop('y')
-            input_variables.pop('z')
+            input_variables.pop("y")
+            input_variables.pop("z")
         elif self.dim == 2:
-            input_variables.pop('z')
+            input_variables.pop("z")
         if not self.time:
-            input_variables.pop('t')
+            input_variables.pop("t")
 
         T = Function(T)(*input_variables)
 
-        self.equations = {'normal_gradient_' + self.T: (normal_x * T.diff(x)
-                                                        + normal_y * T.diff(y)
-                                                        + normal_z * T.diff(z))}
+        self.equations = {
+            "normal_gradient_"
+            + self.T: (
+                normal_x * T.diff(x) + normal_y * T.diff(y) + normal_z * T.diff(z)
+            )
+        }
         self.make_nodes()
 
 
 class Difference(PdeNode):
-    def __init__(self, T: Union[str, Symbol, float, int], S: Union[str, Symbol, float, int], dim=3, time=True):
+    def __init__(
+        self,
+        T: Union[str, Symbol, float, int],
+        S: Union[str, Symbol, float, int],
+        dim=3,
+        time=True,
+    ):
         super().__init__()
         self.T = T
         self.S = S
         self.dim = dim
         self.time = time
-        x, y, z = symbols('x y z')
-        t = Symbol('t')
-        input_variables = {'x': x,
-                           'y': y,
-                           'z': z,
-                           't': t}
+        x, y, z = symbols("x y z")
+        t = Symbol("t")
+        input_variables = {"x": x, "y": y, "z": z, "t": t}
         if self.dim == 1:
-            input_variables.pop('y')
-            input_variables.pop('z')
+            input_variables.pop("y")
+            input_variables.pop("z")
         elif self.dim == 2:
-            input_variables.pop('z')
+            input_variables.pop("z")
         if not self.time:
-            input_variables.pop('t')
+            input_variables.pop("t")
 
         # variables to set the gradients (example Temperature)
         T = Function(T)(*input_variables)
@@ -70,32 +84,35 @@ class Difference(PdeNode):
 
         # set equations
         self.equations = {}
-        self.equations['difference_' + self.T + '_' + self.S] = T - S
+        self.equations["difference_" + self.T + "_" + self.S] = T - S
         self.make_nodes()
 
 
 class Derivative(PdeNode):
-    def __init__(self, T: Union[str, Symbol, float, int], p: Union[str, Symbol], S: Union[str, Symbol, float, int] = 0.,
-                 dim=3, time=True):
+    def __init__(
+        self,
+        T: Union[str, Symbol, float, int],
+        p: Union[str, Symbol],
+        S: Union[str, Symbol, float, int] = 0.0,
+        dim=3,
+        time=True,
+    ):
         super().__init__()
         self.T = T
         self.S = S
         self.dim = dim
         self.time = time
-        x, y, z = symbols('x y z')
-        t = Symbol('t')
+        x, y, z = symbols("x y z")
+        t = Symbol("t")
 
-        input_variables = {'x': x,
-                           'y': y,
-                           'z': z,
-                           't': t}
+        input_variables = {"x": x, "y": y, "z": z, "t": t}
         if self.dim == 1:
-            input_variables.pop('y')
-            input_variables.pop('z')
+            input_variables.pop("y")
+            input_variables.pop("z")
         elif self.dim == 2:
-            input_variables.pop('z')
+            input_variables.pop("z")
         if not self.time:
-            input_variables.pop('t')
+            input_variables.pop("t")
         if type(S) is str:
             S = Function(S)(*input_variables)
         elif type(S) in [float, int]:
@@ -105,9 +122,11 @@ class Derivative(PdeNode):
         T = Function(T)(*input_variables)
         self.equations = {}
         if isinstance(S, Function):
-            self.equations['derivative_' + self.T + ':' + str(p) + '_' + str(self.S)] = T.diff(p) - S
+            self.equations[
+                "derivative_" + self.T + ":" + str(p) + "_" + str(self.S)
+            ] = (T.diff(p) - S)
         else:
-            self.equations['derivative_' + self.T + ':' + str(p)] = T.diff(p) - S
+            self.equations["derivative_" + self.T + ":" + str(p)] = T.diff(p) - S
         self.make_nodes()
 
 
@@ -115,9 +134,9 @@ class Curl(PdeNode):
     def __init__(self, vector, curl_name=None):
         super().__init__()
         if curl_name is None:
-            curl_name = ['u', 'v', 'w']
-        x, y, z = symbols('x y z')
-        input_variables = {'x': x, 'y': y, 'z': z}
+            curl_name = ["u", "v", "w"]
+        x, y, z = symbols("x y z")
+        input_variables = {"x": x, "y": y, "z": z}
 
         v_0 = vector[0]
         v_1 = vector[1]
@@ -146,11 +165,11 @@ class Curl(PdeNode):
 
 
 class Divergence(PdeNode):
-    def __init__(self, vector, div_name='div_v'):
+    def __init__(self, vector, div_name="div_v"):
         super().__init__()
-        x, y, z = symbols('x y z')
+        x, y, z = symbols("x y z")
 
-        input_variables = {'x': x, 'y': y, 'z': z}
+        input_variables = {"x": x, "y": y, "z": z}
 
         v_0 = vector[0]
         v_1 = vector[1]
@@ -174,9 +193,13 @@ class Divergence(PdeNode):
 
 
 class ICNode(PdeNode):
-    def __init__(self, T: Union[str, Symbol, int, float, List[Union[str, Symbol, int, float]]], dim: int = 2,
-                 time: bool = False,
-                 reduce_name: str = None):
+    def __init__(
+        self,
+        T: Union[str, Symbol, int, float, List[Union[str, Symbol, int, float]]],
+        dim: int = 2,
+        time: bool = False,
+        reduce_name: str = None,
+    ):
         super().__init__()
         if reduce_name is None:
             reduce_name = str(T)
@@ -185,28 +208,26 @@ class ICNode(PdeNode):
         self.time = time
         self.reduce_name = reduce_name
 
-        x, y, z = symbols('x y z')
-        normal_x = Symbol('normal_x')
-        normal_y = Symbol('normal_y')
-        normal_z = Symbol('normal_z')
-        area = Symbol('area')
+        x, y, z = symbols("x y z")
+        normal_x = Symbol("normal_x")
+        normal_y = Symbol("normal_y")
+        normal_z = Symbol("normal_z")
+        area = Symbol("area")
 
-        t = Symbol('t')
+        t = Symbol("t")
 
-        input_variables = {'x': x,
-                           'y': y,
-                           'z': z,
-                           't': t}
+        input_variables = {"x": x, "y": y, "z": z, "t": t}
         if self.dim == 1:
-            input_variables.pop('y')
-            input_variables.pop('z')
+            input_variables.pop("y")
+            input_variables.pop("z")
         elif self.dim == 2:
-            input_variables.pop('z')
+            input_variables.pop("z")
         if not self.time:
-            input_variables.pop('t')
+            input_variables.pop("t")
 
-        def sympify_T(T: Union[str, Symbol, int, float, List[Union[str, Symbol, int, float]]]) -> Union[
-            Symbol, List[Symbol]]:
+        def sympify_T(
+            T: Union[str, Symbol, int, float, List[Union[str, Symbol, int, float]]]
+        ) -> Union[Symbol, List[Symbol]]:
             if isinstance(T, list):
                 return [sympify_T(_T) for _T in T]
             elif type(T) is str:
@@ -220,23 +241,33 @@ class ICNode(PdeNode):
         self.equations = {}
         if isinstance(T, list):
             if self.dim == 3:
-                self.equations['integral_' + self.reduce_name] = integral((normal_x * T[0]
-                                                                           + normal_y * T[1]
-                                                                           + normal_z * T[2]) * area)
+                self.equations["integral_" + self.reduce_name] = integral(
+                    (normal_x * T[0] + normal_y * T[1] + normal_z * T[2]) * area
+                )
             if self.dim == 2:
-                self.equations['integral_' + self.reduce_name] = integral((normal_x * T[0]
-                                                                           + normal_y * T[1]) * area)
+                self.equations["integral_" + self.reduce_name] = integral(
+                    (normal_x * T[0] + normal_y * T[1]) * area
+                )
         else:
-            self.equations['integral_' + self.reduce_name] = integral(T * area)
+            self.equations["integral_" + self.reduce_name] = integral(T * area)
         self.make_nodes()
 
 
 class Int1DNode(PdeNode):
     counter = 0
 
-    def __init__(self, expression, expression_name, lb, ub, var: Union[str, sp.Symbol] = 's', degree=20, **kwargs):
+    def __init__(
+        self,
+        expression,
+        expression_name,
+        lb,
+        ub,
+        var: Union[str, sp.Symbol] = "s",
+        degree=20,
+        **kwargs
+    ):
         super().__init__(**kwargs)
-        x = sp.Symbol('x')
+        x = sp.Symbol("x")
         self.equations = {}
         self.var = sp.Symbol(var) if isinstance(var, str) else var
         self.degree = degree
@@ -265,13 +296,19 @@ class Int1DNode(PdeNode):
         else:
             raise
 
-        if 'funs' in kwargs.keys():
-            self.funs = kwargs['funs']
+        if "funs" in kwargs.keys():
+            self.funs = kwargs["funs"]
         else:
             self.funs = {}
-        self.computable_name = set(*[fun['output_map'].values() for _, fun in self.funs.items()])
+        self.computable_name = set(
+            *[fun["output_map"].values() for _, fun in self.funs.items()]
+        )
         self.fun_require_input = set(
-            *[set(fun['eval'].inputs) - set(fun['input_map'].keys()) for _, fun in self.funs.items()])
+            *[
+                set(fun["eval"].inputs) - set(fun["input_map"].keys())
+                for _, fun in self.funs.items()
+            ]
+        )
 
         self.make_nodes()
 
@@ -300,13 +337,22 @@ class Int1DNode(PdeNode):
         self.derivatives = []
         self.outputs = [x for x in name_set]
 
-    def new_node(self, name: str = None, tf_eq: sp.Expr = None, free_symbols: List[str] = None, *args, **kwargs):
+    def new_node(
+        self,
+        name: str = None,
+        tf_eq: sp.Expr = None,
+        free_symbols: List[str] = None,
+        *args,
+        **kwargs
+    ):
         out_symbols = [x for x in free_symbols if x not in self.funs.keys()]
         lb_lambda = torch_lambdify(out_symbols, self.lb)
         ub_lambda = torch_lambdify(out_symbols, self.ub)
         eq_lambda = torch_lambdify([*free_symbols, self.var.name], tf_eq)
         node = Node()
-        node.evaluate = IntEq(self, lb_lambda, ub_lambda, out_symbols, free_symbols, eq_lambda, name)
+        node.evaluate = IntEq(
+            self, lb_lambda, ub_lambda, out_symbols, free_symbols, eq_lambda, name
+        )
         node.inputs = [x for x in free_symbols if x not in self.funs.keys()]
         node.derivatives = []
         node.outputs = [name]
@@ -315,7 +361,16 @@ class Int1DNode(PdeNode):
 
 
 class IntEq:
-    def __init__(self, binding_node, lb_lambda, ub_lambda, out_symbols, free_symbols, eq_lambda, name):
+    def __init__(
+        self,
+        binding_node,
+        lb_lambda,
+        ub_lambda,
+        out_symbols,
+        free_symbols,
+        eq_lambda,
+        name,
+    ):
         self.binding_node = binding_node
         self.lb_lambda = lb_lambda
         self.ub_lambda = ub_lambda
@@ -326,8 +381,12 @@ class IntEq:
 
     def __call__(self, var: Variables):
         var = {k: v for k, v in var.items()}
-        lb_value = self.lb_lambda(**{k: v for k, v in var.items() if k in self.out_symbols})
-        ub_value = self.ub_lambda(**{k: v for k, v in var.items() if k in self.out_symbols})
+        lb_value = self.lb_lambda(
+            **{k: v for k, v in var.items() if k in self.out_symbols}
+        )
+        ub_value = self.ub_lambda(
+            **{k: v for k, v in var.items() if k in self.out_symbols}
+        )
 
         xx = dict()
         for syp in self.free_symbols:
@@ -347,19 +406,21 @@ class IntEq:
 
         new_var = dict()
         for _, fun in self.binding_node.funs.items():
-            input_map = fun['input_map']
-            output_map = fun['output_map']
+            input_map = fun["input_map"]
+            output_map = fun["output_map"]
             tmp_var = dict()
             for k, v in xx.items():
                 tmp_var[k] = v
             for k, v in input_map.items():
                 tmp_var[k] = quad_s
-            res = fun['eval'].evaluate(tmp_var)
+            res = fun["eval"].evaluate(tmp_var)
             for k, v in output_map.items():
                 res[v] = res.pop(k)
             new_var.update(res)
         xx.update(new_var)
 
-        values = quad_w * self.eq_lambda(**dict(**{self.binding_node.var.name: quad_s}, **xx))
+        values = quad_w * self.eq_lambda(
+            **dict(**{self.binding_node.var.name: quad_s}, **xx)
+        )
         values = values.reshape(shape)
         return {self.name: values.sum(1, keepdim=True)}

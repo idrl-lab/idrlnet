@@ -13,7 +13,7 @@ __all__ = ['GradientReceiver', 'SummaryReceiver', 'HandleResultReceiver']
 class GradientReceiver(Receiver):
     """Register the receiver to monitor gradient norm on the Tensorboard."""
 
-    def receive_notify(self, solver: 'Solver', message):
+    def receive_notify(self, solver: 'Solver', message): # noqa
         if not (Signal.TRAIN_PIPE_END in message):
             return
         for netnode in solver.netnodes:
@@ -34,7 +34,7 @@ class SummaryReceiver(SummaryWriter, Receiver):
     def __init__(self, *args, **kwargs):
         SummaryWriter.__init__(self, *args, **kwargs)
 
-    def receive_notify(self, solver: 'Solver', message: Dict):
+    def receive_notify(self, solver: 'Solver', message: Dict):  # noqa
         if Signal.AFTER_COMPUTE_LOSS in message.keys():
             loss_component = message[Signal.AFTER_COMPUTE_LOSS]
             self.add_scalars('loss_overview', loss_component, solver.global_step)
@@ -51,7 +51,7 @@ class HandleResultReceiver(Receiver):
     def __init__(self, result_dir):
         self.result_dir = result_dir
 
-    def receive_notify(self, solver: 'Solver', message: Dict):
+    def receive_notify(self, solver: 'Solver', message: Dict):  # noqa
         if Signal.SOLVE_END in message.keys():
             samples = solver.sample_variables_from_domains()
             in_var, _, lambda_out = solver.generate_in_out_dict(samples)
