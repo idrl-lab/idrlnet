@@ -2,8 +2,11 @@ name: docker-build-push
 
 on:
   push:
-    branches:
-      - 'dev'
+  pull_request:
+    branches: [master]
+  release:
+    types: [published, created, edited]
+
 
 jobs:
   docker:
@@ -31,3 +34,17 @@ jobs:
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
+
+      -
+        name: Get release version
+        if: github.event_name == 'release'
+        id: get_version
+        run: echo "::set-output name=RELEASE_VERSION::${{ github.event.release.tag_name }}"
+
+      -
+        name: Publish Releases to Dockerhub
+        if: github.event_name == 'release'
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/idrlnet:${{ steps.get_version.outputs.RELEASE_VERSION }}
