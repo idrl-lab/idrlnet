@@ -5,35 +5,40 @@ import math
 import torch
 from idrlnet.header import logger
 
-__all__ = ['Activation', 'Initializer', 'get_activation_layer', 'get_linear_layer']
+__all__ = ["Activation", "Initializer", "get_activation_layer", "get_linear_layer"]
 
 
 class Activation(enum.Enum):
-    relu = 'relu'
-    silu = 'silu'
-    selu = 'selu'
-    sigmoid = 'sigmoid'
-    tanh = 'tanh'
-    swish = 'swish'
-    poly = 'poly'
-    sin = 'sin'
-    leaky_relu = 'leaky_relu'
+    relu = "relu"
+    silu = "silu"
+    selu = "selu"
+    sigmoid = "sigmoid"
+    tanh = "tanh"
+    swish = "swish"
+    poly = "poly"
+    sin = "sin"
+    leaky_relu = "leaky_relu"
 
 
 class Initializer(enum.Enum):
-    Xavier_uniform = 'Xavier_uniform'
-    constant = 'constant'
-    kaiming_uniform = 'kaiming_uniform'
-    default = 'default'
+    Xavier_uniform = "Xavier_uniform"
+    constant = "constant"
+    kaiming_uniform = "kaiming_uniform"
+    default = "default"
 
 
-def get_linear_layer(input_dim: int, output_dim: int, weight_norm=False,
-                     initializer: Initializer = Initializer.Xavier_uniform, *args,
-                     **kwargs):
+def get_linear_layer(
+    input_dim: int,
+    output_dim: int,
+    weight_norm=False,
+    initializer: Initializer = Initializer.Xavier_uniform,
+    *args,
+    **kwargs,
+):
     layer = torch.nn.Linear(input_dim, output_dim)
     init_method = InitializerFactory.get_initializer(initializer=initializer, **kwargs)
     init_method(layer.weight)
-    torch.nn.init.constant_(layer.bias, 0.)
+    torch.nn.init.constant_(layer.bias, 0.0)
     if weight_norm:
         layer = torch.nn.utils.weight_norm(layer)
     return layer
@@ -81,8 +86,10 @@ class ActivationFactory:
         elif activation == Activation.silu:
             return Silu()
         else:
-            logger.error(f'Activation {activation} is not supported!')
-            raise NotImplementedError('Activation ' + activation.name + ' is not supported')
+            logger.error(f"Activation {activation} is not supported!")
+            raise NotImplementedError(
+                "Activation " + activation.name + " is not supported"
+            )
 
 
 class Silu:
@@ -105,8 +112,12 @@ def leaky_relu(x, leak=0.1):
 def triangle_wave(x):
     y = 0.0
     for i in range(3):
-        y += (-1.0) ** (i) * torch.sin(2.0 * math.pi * (2.0 * i + 1.0) * x) / (2.0 * i + 1.0) ** (2)
-    y = 0.5 * (8 / (math.pi ** 2) * y) + .5
+        y += (
+            (-1.0) ** (i)
+            * torch.sin(2.0 * math.pi * (2.0 * i + 1.0) * x)
+            / (2.0 * i + 1.0) ** (2)
+        )
+    y = 0.5 * (8 / (math.pi ** 2) * y) + 0.5
     return y
 
 
@@ -139,11 +150,15 @@ class InitializerFactory:
         if initializer == Initializer.Xavier_uniform:
             return torch.nn.init.xavier_uniform_
         elif initializer == Initializer.constant:
-            return lambda x: torch.nn.init.constant_(x, kwargs['constant'])
+            return lambda x: torch.nn.init.constant_(x, kwargs["constant"])
         elif initializer == Initializer.kaiming_uniform:
-            return lambda x: torch.nn.init.kaiming_uniform_(x, mode='fan_in', nonlinearity='relu')
+            return lambda x: torch.nn.init.kaiming_uniform_(
+                x, mode="fan_in", nonlinearity="relu"
+            )
         elif initializer == Initializer.default:
             return lambda x: x
         else:
-            logger.error('initialization ' + initializer.name + ' is not supported')
-            raise NotImplementedError('initialization ' + initializer.name + ' is not supported')
+            logger.error("initialization " + initializer.name + " is not supported")
+            raise NotImplementedError(
+                "initialization " + initializer.name + " is not supported"
+            )

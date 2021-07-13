@@ -14,7 +14,7 @@ class TestFun:
         self.registered.append(self)
 
     def __call__(self, *args, **kwargs):
-        print(str(self.fun.__name__).center(50, '*'))
+        print(str(self.fun.__name__).center(50, "*"))
         self.fun()
 
     @staticmethod
@@ -36,7 +36,12 @@ def testmemo(fun):
 
 testmemo.memo = set()
 
-log_format = '[%(asctime)s] [%(levelname)s] %(message)s'
-handlers = [logging.FileHandler('train.log', mode='a'), logging.StreamHandler()]
-logging.basicConfig(format=log_format, level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S', handlers=handlers)
+log_format = "[%(asctime)s] [%(levelname)s] %(message)s"
+handlers = [logging.FileHandler("train.log", mode="a"), logging.StreamHandler()]
+logging.basicConfig(
+    format=log_format,
+    level=logging.INFO,
+    datefmt="%d-%b-%y %H:%M:%S",
+    handlers=handlers,
+)
 logger = logging.getLogger(__name__)
