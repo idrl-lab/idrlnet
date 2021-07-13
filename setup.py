@@ -1,7 +1,23 @@
 import setuptools
+import os
+import pathlib
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+here = pathlib.Path(__file__).parent.resolve()
+long_description = (here / "README.md").read_text(encoding="utf-8")
+
+
+def load_requirements(path_dir=here, comment_char="#"):
+    with open(os.path.join(path_dir, "requirements.txt"), "r") as file:
+        lines = [line.strip() for line in file.readlines()]
+    requirements = []
+    for line in lines:
+        # filer all comments
+        if comment_char in line:
+            line = line[: line.index(comment_char)]
+        if line:  # if requirement is not empty
+            requirements.append(line)
+    return requirements
+
 
 setuptools.setup(
     name="idrlnet",  # Replace with your own username
@@ -18,5 +34,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires=">=3.6",
+    install_requires=load_requirements(),
 )
