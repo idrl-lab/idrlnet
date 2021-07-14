@@ -5,7 +5,7 @@ from idrlnet.torch_util import torch_lambdify
 from idrlnet.variable import Variables
 from idrlnet.header import DIFF_SYMBOL
 
-__all__ = ['Node']
+__all__ = ["Node"]
 
 
 class Node(object):
@@ -58,7 +58,7 @@ class Node(object):
         try:
             return self._name
         except:
-            self._name = 'Node' + str(id(self))
+            self._name = "Node" + str(id(self))
             return self._name
 
     @name.setter
@@ -66,23 +66,33 @@ class Node(object):
         self._name = name
 
     @classmethod
-    def new_node(cls, name: str = None, tf_eq: Callable = None, free_symbols: List[str] = None, *args,
-                 **kwargs) -> 'Node':
+    def new_node(
+        cls,
+        name: str = None,
+        tf_eq: Callable = None,
+        free_symbols: List[str] = None,
+        *args,
+        **kwargs
+    ) -> "Node":
         node = cls()
         node.evaluate = LambdaTorchFun(free_symbols, tf_eq, name)
         node.inputs = [x for x in free_symbols if DIFF_SYMBOL not in x]
         node.derivatives = [x for x in free_symbols if DIFF_SYMBOL in x]
-        node.outputs = [name, ]
+        node.outputs = [
+            name,
+        ]
         node.name = name
         return node
 
     def __str__(self):
-        str_list = ["Basic properties:\n",
-                    "name: {}\n".format(self.name),
-                    "inputs: {}\n".format(self.inputs),
-                    "derivatives: {}\n".format(self.derivatives),
-                    "outputs: {}\n".format(self.outputs), ]
-        return ''.join(str_list)
+        str_list = [
+            "Basic properties:\n",
+            "name: {}\n".format(self.name),
+            "inputs: {}\n".format(self.inputs),
+            "derivatives: {}\n".format(self.derivatives),
+            "outputs: {}\n".format(self.outputs),
+        ]
+        return "".join(str_list)
 
 
 class LambdaTorchFun:

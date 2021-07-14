@@ -6,7 +6,7 @@ from idrlnet.torch_util import _replace_derivatives
 from idrlnet.header import DIFF_SYMBOL
 from idrlnet.variable import Variables
 
-__all__ = ['PdeNode', 'ExpressionNode']
+__all__ = ["PdeNode", "ExpressionNode"]
 
 
 class PdeEvaluate:
@@ -18,8 +18,11 @@ class PdeEvaluate:
     def __call__(self, inputs: Variables) -> Variables:
         result = Variables()
         for node in self.binding_pde.sub_nodes:
-            sub_inputs = {k: v for k, v in Variables(inputs).items() if
-                          k in node.inputs or k in node.derivatives}
+            sub_inputs = {
+                k: v
+                for k, v in Variables(inputs).items()
+                if k in node.inputs or k in node.derivatives
+            }
             r = node.evaluate(sub_inputs)
             result.update(r)
         return result
@@ -53,9 +56,9 @@ class PdeNode(Node):
 
     def __init__(self, suffix: str = "", **kwargs):
         if len(suffix) > 0:
-            self.suffix = '[' + kwargs['suffix'] + ']'  # todo: check prefix
+            self.suffix = "[" + kwargs["suffix"] + "]"  # todo: check prefix
         else:
-            self.suffix = ''
+            self.suffix = ""
         self.name = type(self).__name__ + self.suffix
         self.evaluate = PdeEvaluate(self)
 
@@ -77,8 +80,10 @@ class PdeNode(Node):
 
     def __str__(self):
         subnode_str = "\n\n".join(
-            str(sub_node) + "Equation: \n" + str(self.equations[sub_node.name]) for sub_node in self.sub_nodes)
-        return super().__str__() + "subnodes".center(30, '-') + '\n' + subnode_str
+            str(sub_node) + "Equation: \n" + str(self.equations[sub_node.name])
+            for sub_node in self.sub_nodes
+        )
+        return super().__str__() + "subnodes".center(30, "-") + "\n" + subnode_str
 
 
 # todo: test required

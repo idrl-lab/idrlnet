@@ -23,7 +23,7 @@ class CheckMeta(type):
 
 class AbsGeoObj(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def rotation(self, angle: float, axis: str = 'z'):
+    def rotation(self, angle: float, axis: str = "z"):
         pass
 
     @abc.abstractmethod
@@ -43,16 +43,24 @@ class Edge(AbsGeoObj):
 
     @property
     def axes(self) -> List[str]:
-        return [key for key in self.functions if not key.startswith('normal')]
+        return [key for key in self.functions if not key.startswith("normal")]
 
-    def rotation(self, angle: float, axis: str = 'z'):
-        assert len(self.axes) > 1, 'Cannot rotate a object with dim<2'
+    def rotation(self, angle: float, axis: str = "z"):
+        assert len(self.axes) > 1, "Cannot rotate a object with dim<2"
         rotated_dims = [key for key in self.axes if key != axis]
-        rd1, rd2, n = rotated_dims[0], rotated_dims[1], 'normal_'
-        self.functions[rd1] = (cos(angle) * self.functions[rd1] - sin(angle) * self.functions[rd2])
-        self.functions[n + rd1] = cos(angle) * self.functions[n + rd1] - sin(angle) * self.functions[n + rd2]
-        self.functions[rd2] = (sin(angle) * self.functions[rd1] + cos(angle) * self.functions[rd2])
-        self.functions[n + rd2] = sin(angle) * self.functions[n + rd1] + cos(angle) * self.functions[n + rd2]
+        rd1, rd2, n = rotated_dims[0], rotated_dims[1], "normal_"
+        self.functions[rd1] = (
+            cos(angle) * self.functions[rd1] - sin(angle) * self.functions[rd2]
+        )
+        self.functions[n + rd1] = (
+            cos(angle) * self.functions[n + rd1] - sin(angle) * self.functions[n + rd2]
+        )
+        self.functions[rd2] = (
+            sin(angle) * self.functions[rd1] + cos(angle) * self.functions[rd2]
+        )
+        self.functions[n + rd2] = (
+            sin(angle) * self.functions[n + rd1] + cos(angle) * self.functions[n + rd2]
+        )
         return self
 
     def scaling(self, scale: float):
@@ -62,20 +70,28 @@ class Edge(AbsGeoObj):
         return self
 
     def translation(self, direction):
-        assert len(direction) == len(self.axes), 'Moving direction must have the save dimension with the object'
+        assert len(direction) == len(
+            self.axes
+        ), "Moving direction must have the save dimension with the object"
         for key, x in zip(self.axes, direction):
             self.functions[key] += x
         return self
 
-    def sample(self, density: int, param_ranges=None, low_discrepancy=False) -> Dict[str, np.ndarray]:
+    def sample(
+        self, density: int, param_ranges=None, low_discrepancy=False
+    ) -> Dict[str, np.ndarray]:
         param_ranges = {} if param_ranges is None else param_ranges
         inputs = {**self.ranges, **param_ranges}.keys()
         area_fn = lambdify_np(self.area, inputs)
         param_points = _ranged_sample(100, ranges={**self.ranges, **param_ranges})
         nr_points = int(density * (np.mean(area_fn(**param_points))))
 
-        lambdify_functions = {'area': lambda **x: area_fn(**x) / next(iter(x.values())).shape[0]}
-        param_points = _ranged_sample(nr_points, {**self.ranges, **param_ranges}, low_discrepancy)
+        lambdify_functions = {
+            "area": lambda **x: area_fn(**x) / next(iter(x.values())).shape[0]
+        }
+        param_points = _ranged_sample(
+            nr_points, {**self.ranges, **param_ranges}, low_discrepancy
+        )
         data_var = {}
 
         for key, function in self.functions.items():
@@ -105,104 +121,138 @@ class Geometry(AbsGeoObj, metaclass=AbsCheckMix):
         if type(self) in [Geometry, Geometry1D, Geometry2D, Geometry3D]:
             return
         if self.edges is None:
-            raise NotImplementedError('Geometry must define edges')
+            raise NotImplementedError("Geometry must define edges")
         if self.bounds is None:
-            raise NotImplementedError('Geometry must define bounds')
+            raise NotImplementedError("Geometry must define bounds")
         if self.sdf is None:
-            raise NotImplementedError('Geometry must define sdf')
+            raise NotImplementedError("Geometry must define sdf")
 
     @property
     def axes(self) -> List[str]:
         return self.edges[0].axes
 
-    def translation(self, direction: Union[List, Tuple]) -> 'Geometry':
+    def translation(self, direction: Union[List, Tuple]) -> "Geometry":
         assert len(direction) == len(self.axes)
         [edge.translation(direction) for edge in self.edges]
-        self.sdf = self.sdf.subs([(Symbol(dim), Symbol(dim) - x) for dim, x in zip(self.axes, direction)])
-        self.bounds = {dim: (self.bounds[dim][0] + x, self.bounds[dim][1] + x) for dim, x in zip(self.axes, direction)}
+        self.sdf = self.sdf.subs(
+            [(Symbol(dim), Symbol(dim) - x) for dim, x in zip(self.axes, direction)]
+        )
+        self.bounds = {
+            dim: (self.bounds[dim][0] + x, self.bounds[dim][1] + x)
+            for dim, x in zip(self.axes, direction)
+        }
         return self
 
-    def rotation(self, angle: float, axis: str = 'z', center=None) -> 'Geometry':
+    def rotation(self, angle: float, axis: str = "z", center=None) -> "Geometry":
         if center is not None:
             self.translation([-x for x in center])
 
         [edge.rotation(angle, axis) for edge in self.edges]
         rotated_dims = [key for key in self.axes if key != axis]
         sp_0 = Symbol(rotated_dims[0])
-        _sp_0 = Symbol('tmp_0')
+        _sp_0 = Symbol("tmp_0")
         sp_1 = Symbol(rotated_dims[1])
-        _sp_1 = Symbol('tmp_1')
-        self.sdf = self.sdf.subs({sp_0: cos(angle) * _sp_0 + sin(angle) * _sp_1,
-                                  sp_1: - sin(angle) * _sp_0 + cos(angle) * _sp_1})
+        _sp_1 = Symbol("tmp_1")
+        self.sdf = self.sdf.subs(
+            {
+                sp_0: cos(angle) * _sp_0 + sin(angle) * _sp_1,
+                sp_1: -sin(angle) * _sp_0 + cos(angle) * _sp_1,
+            }
+        )
         self.sdf = self.sdf.subs({_sp_0: sp_0, _sp_1: sp_1})
-        self.bounds[rotated_dims[0]], self.bounds[rotated_dims[1]] = _rotate_rec(self.bounds[rotated_dims[0]],
-                                                                                 self.bounds[rotated_dims[1]],
-                                                                                 angle=angle)
+        self.bounds[rotated_dims[0]], self.bounds[rotated_dims[1]] = _rotate_rec(
+            self.bounds[rotated_dims[0]], self.bounds[rotated_dims[1]], angle=angle
+        )
         if center is not None:
             self.translation(center)
         return self
 
-    def scaling(self, scale: float, center: Tuple = None) -> 'Geometry':
-        assert scale > 0, 'scaling must be positive'
+    def scaling(self, scale: float, center: Tuple = None) -> "Geometry":
+        assert scale > 0, "scaling must be positive"
         if center is not None:
             self.translation(tuple([-x for x in center]))
         [edge.scaling(scale) for edge in self.edges]
-        self.sdf = self.sdf.subs({Symbol(dim): Symbol(dim) / scale for dim in self.axes})
+        self.sdf = self.sdf.subs(
+            {Symbol(dim): Symbol(dim) / scale for dim in self.axes}
+        )
         self.sdf = scale * self.sdf
         for dim in self.axes:
-            self.bounds[dim] = (self.bounds[dim][0] * scale, self.bounds[dim][1] * scale)
+            self.bounds[dim] = (
+                self.bounds[dim][0] * scale,
+                self.bounds[dim][1] * scale,
+            )
         if center is not None:
             self.translation(center)
         return self
 
-    def duplicate(self) -> 'Geometry':
+    def duplicate(self) -> "Geometry":
         return copy.deepcopy(self)
 
-    def sample_boundary(self, density: int, sieve=None, param_ranges: Dict = None, low_discrepancy=False) -> Dict[
-        str, np.ndarray]:
+    def sample_boundary(
+        self, density: int, sieve=None, param_ranges: Dict = None, low_discrepancy=False
+    ) -> Dict[str, np.ndarray]:
         param_ranges = dict() if param_ranges is None else param_ranges
-        points_list = [edge.sample(density, param_ranges, low_discrepancy) for edge in
-                       self.edges]
-        points = reduce(lambda e1, e2: {_k: np.concatenate([e1[_k], e2[_k]], axis=0) for _k in e1}, points_list)
+        points_list = [
+            edge.sample(density, param_ranges, low_discrepancy) for edge in self.edges
+        ]
+        points = reduce(
+            lambda e1, e2: {_k: np.concatenate([e1[_k], e2[_k]], axis=0) for _k in e1},
+            points_list,
+        )
         points = self._sieve_points(points, sieve, sign=-1, tol=1e-4)
         return points
 
-    def _sieve_points(self, points, sieve, tol=1e-4, sign=1.):
+    def _sieve_points(self, points, sieve, tol=1e-4, sign=1.0):
 
         sdf_fn = lambdify_np(self.sdf, points.keys())
-        points['sdf'] = sdf_fn(**points)
+        points["sdf"] = sdf_fn(**points)
 
         criteria_fn = lambdify_np(True if sieve is None else sieve, points.keys())
-        criteria_index = np.logical_and(np.greater(points['sdf'], -tol), criteria_fn(**points))
+        criteria_index = np.logical_and(
+            np.greater(points["sdf"], -tol), criteria_fn(**points)
+        )
         if sign == -1:
-            criteria_index = np.logical_and(np.less(points['sdf'], tol), criteria_index)
+            criteria_index = np.logical_and(np.less(points["sdf"], tol), criteria_index)
         points = {k: v[criteria_index[:, 0], :] for k, v in points.items()}
         return points
 
-    def sample_interior(self, density: int, bounds: Dict = None, sieve=None, param_ranges: Dict = None,
-                        low_discrepancy=False) -> Dict[str, np.ndarray]:
+    def sample_interior(
+        self,
+        density: int,
+        bounds: Dict = None,
+        sieve=None,
+        param_ranges: Dict = None,
+        low_discrepancy=False,
+    ) -> Dict[str, np.ndarray]:
         bounds = self.bounds if bounds is None else bounds
-        bounds = {Symbol(key) if isinstance(key, str) else key: value for key, value in bounds.items()}
+        bounds = {
+            Symbol(key) if isinstance(key, str) else key: value
+            for key, value in bounds.items()
+        }
         param_ranges = {} if param_ranges is None else param_ranges
         measure = np.prod([value[1] - value[0] for value in bounds.values()])
         nr_points = int(measure * density)
 
-        points = _ranged_sample(nr_points, {**bounds, **param_ranges}, low_discrepancy=low_discrepancy)
+        points = _ranged_sample(
+            nr_points, {**bounds, **param_ranges}, low_discrepancy=low_discrepancy
+        )
         assert len(points.keys()) >= 0, "No points have been sampled!"
 
-        points = self._sieve_points(points, sieve, tol=0.)
+        points = self._sieve_points(points, sieve, tol=0.0)
 
-        points['area'] = np.zeros_like(points['sdf']) + (1.0 / density)
+        points["area"] = np.zeros_like(points["sdf"]) + (1.0 / density)
         return points
 
-    def __add__(self, other: 'Geometry') -> 'Geometry':
+    def __add__(self, other: "Geometry") -> "Geometry":
         geo = self.generate_geo_obj(other)
         geo.edges = self.edges + other.edges
         geo.sdf = WrapMax(self.sdf, other.sdf)
         geo.bounds = dict()
         for key, value in self.bounds.items():
             geo.bounds[key] = (
-                min(other.bounds[key][0], self.bounds[key][0]), max(other.bounds[key][1], self.bounds[key][1]))
+                min(other.bounds[key][0], self.bounds[key][0]),
+                max(other.bounds[key][1], self.bounds[key][1]),
+            )
         return geo
 
     def generate_geo_obj(self, other=None):
@@ -219,7 +269,7 @@ class Geometry(AbsGeoObj, metaclass=AbsCheckMix):
             raise TypeError
         return geo
 
-    def __sub__(self, other: 'Geometry') -> 'Geometry':
+    def __sub__(self, other: "Geometry") -> "Geometry":
         geo = self.generate_geo_obj(other)
 
         geo.edges = self.edges + [_inverse_edge(edge) for edge in other.edges]
@@ -229,22 +279,24 @@ class Geometry(AbsGeoObj, metaclass=AbsCheckMix):
             geo.bounds[key] = (self.bounds[key][0], self.bounds[key][1])
         return geo
 
-    def __invert__(self) -> 'Geometry':
+    def __invert__(self) -> "Geometry":
         geo = self.generate_geo_obj()
         geo.edges = [_inverse_edge(edge) for edge in self.edges]
         geo.sdf = WrapMul(-1, self.sdf)
         for key, value in self.bounds.items():
-            geo.bounds[key] = (-float('inf'), float('inf'))
+            geo.bounds[key] = (-float("inf"), float("inf"))
         return geo
 
-    def __and__(self, other: 'Geometry') -> 'Geometry':
+    def __and__(self, other: "Geometry") -> "Geometry":
         geo = self.generate_geo_obj(other)
         geo.edges = self.edges + other.edges
         geo.sdf = WrapMin(self.sdf, other.sdf)
         geo.bounds = dict()
         for key, value in self.bounds.items():
             geo.bounds[key] = (
-                max(other.bounds[key][0], self.bounds[key][0]), min(other.bounds[key][1], self.bounds[key][1]))
+                max(other.bounds[key][0], self.bounds[key][0]),
+                min(other.bounds[key][1], self.bounds[key][1]),
+            )
         return geo
 
 
@@ -261,14 +313,16 @@ class Geometry3D(Geometry):
 
 
 # todo: sample in cuda device
-def _ranged_sample(batch_size: int, ranges: Dict, low_discrepancy: bool = False) -> Dict[str, np.ndarray]:
+def _ranged_sample(
+    batch_size: int, ranges: Dict, low_discrepancy: bool = False
+) -> Dict[str, np.ndarray]:
     points = dict()
     low_discrepancy_stack = []
     for key, value in ranges.items():
         if isinstance(value, (float, int)):
             samples = np.ones((batch_size, 1)) * value
         elif isinstance(value, tuple):
-            assert len(value) == 2, 'Tuple: length of range should be 2!'
+            assert len(value) == 2, "Tuple: length of range should be 2!"
             if low_discrepancy:
                 low_discrepancy_stack.append((key.name, value))
                 continue
@@ -277,10 +331,12 @@ def _ranged_sample(batch_size: int, ranges: Dict, low_discrepancy: bool = False)
         elif isinstance(value, collections.Callable):
             samples = value(batch_size)
         else:
-            raise TypeError(f'range type {type(value)} not supported!')
+            raise TypeError(f"range type {type(value)} not supported!")
         points[key.name] = samples
     if low_discrepancy:
-        low_discrepancy_points_dict = _low_discrepancy_sampling(batch_size, low_discrepancy_stack)
+        low_discrepancy_points_dict = _low_discrepancy_sampling(
+            batch_size, low_discrepancy_stack
+        )
         points.update(low_discrepancy_points_dict)
     for key, v in points.items():
         points[key] = v.astype(np.float64)
@@ -289,8 +345,8 @@ def _ranged_sample(batch_size: int, ranges: Dict, low_discrepancy: bool = False)
 
 def _rotate_rec(x: Tuple, y: Tuple, angle: float):
     points = itertools.product(x, y)
-    min_x, min_y = float('inf'), float('inf')
-    max_x, max_y = -float('inf'), -float('inf')
+    min_x, min_y = float("inf"), float("inf")
+    max_x, max_y = -float("inf"), -float("inf")
     try:
         for x, y in points:
             new_x = cos(angle) * x - sin(angle) * y
@@ -327,7 +383,11 @@ def _low_discrepancy_sampling(n_points, low_discrepancy_stack: List[Tuple]):
 
         for i in range(len(q) - 1):
             for j in range(dims):
-                x[q[i]:q[i + 1], j] = (x[q[i]:q[i + 1], j] - rmin[j]) / 2 + rmin[j] + ((i >> j) & 1) * bi_range
+                x[q[i] : q[i + 1], j] = (
+                    (x[q[i] : q[i + 1], j] - rmin[j]) / 2
+                    + rmin[j]
+                    + ((i >> j) & 1) * bi_range
+                )
             rmin_sub = [v + bi_range * ((i >> j) & 1) for j, v in enumerate(rmin)]
             uniform(x, q[i], q[i + 1], rmin_sub, bi_range=bi_range / 2)
         return x
@@ -337,11 +397,15 @@ def _low_discrepancy_sampling(n_points, low_discrepancy_stack: List[Tuple]):
     uniform(points, start=0, end=n, rmin=[0] * dim)
     points_dict = {}
     for i, (key, bi_range) in enumerate(low_discrepancy_stack):
-        points_dict[key] = points[:, i:i + 1] * (bi_range[1] - bi_range[0]) + bi_range[0]
+        points_dict[key] = (
+            points[:, i : i + 1] * (bi_range[1] - bi_range[0]) + bi_range[0]
+        )
     return points_dict
 
 
 def _inverse_edge(edge: Edge):
-    new_functions = {k: -v if k.startswith('normal_') else v for k, v in edge.functions.items()}
+    new_functions = {
+        k: -v if k.startswith("normal_") else v for k, v in edge.functions.items()
+    }
     edge = Edge(functions=new_functions, ranges=edge.ranges, area=edge.area)
     return edge
