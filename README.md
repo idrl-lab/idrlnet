@@ -2,33 +2,45 @@
 [![Python](https://img.shields.io/badge/python-3.8-blue.svg)](https://python.org)
 [![Documentation Status](https://readthedocs.org/projects/idrlnet/badge/?version=latest)](https://idrlnet.readthedocs.io/en/latest/?badge=latest)
 
+# IDRLnet
+
+
+**IDRLnet** is a machine learning library on top of [PyTorch](https://pytorch.org/). Use IDRLnet if you need a machine
+learning library that solves both forward and inverse differential equations via physics-informed neural
+networks (PINN). IDRLnet is a flexible framework inspired by [Nvidia Simnet](https://developer.nvidia.com/simnet>).
+
 ## Installation
+
+Choose one of the following installation methods.
+
+### PyPI
+
+Simple installation from PyPI
+
+```bash
+pip install -U idrlnet
+```
+
+Note: To avoid version conflicts, please use some tools to create a virtual environment first.
 
 ### Docker
 
 ```bash
-git clone https://github.com/idrl-lab/idrlnet
-cd idrlnet
-docker build . -t idrlnet_dev
-docker run -it -p [EXPOSED_SSH_PORT]:22 -v [CURRENT_WORK_DIR]:/root/pinnnet idrlnet_dev:latest bash
+docker pull idrl/idrlnet:latest
 ```
 
 ### Anaconda
 
-```bash
+
+
+### From Source
+
+```
 git clone https://github.com/idrl-lab/idrlnet
 cd idrlnet
-conda create -n idrlnet_dev python=3.8 -y
-conda activate idrlnet_dev
-pip install -r requirements.txt
 pip install -e .
 ```
 
-# IDRLnet
-
-IDRLnet is a machine learning library on top of [Pytorch](https://www.tensorflow.org/). Use IDRLnet if you need a machine
-learning library that solves both forward and inverse partial differential equations (PDEs) via physics-informed neural
-networks (PINN). IDRLnet is a flexible framework inspired by [Nvidia Simnet](https://developer.nvidia.com/simnet>).
 
 ## Features
 
@@ -81,3 +93,16 @@ First off, thanks for taking the time to contribute!
 
 IDRLnet was originally developed by IDRL lab.
 
+## Citation
+Feel free to cite this library.
+
+```bibtex
+@article{peng2021idrlnet,
+      title={IDRLnet: A Physics-Informed Neural Network Library}, 
+      author={Wei Peng and Jun Zhang and Weien Zhou and Xiaoyu Zhao and Wen Yao and Xiaoqian Chen},
+      year={2021},
+      eprint={2107.04320},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+```
