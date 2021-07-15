@@ -28,6 +28,14 @@ jobs:
       -
         name: Print event_name
         run: echo "$GITHUB_EVENT_NAME, ${{ github.event_name }}, ${{ github.event.release.tag_name }}"
+      
+      -
+        name: Publish master to Dockerhub
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/idrlnet:latest
+          file: Dockerfile
 
       -
         name: Get release version
