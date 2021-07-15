@@ -36,6 +36,7 @@ class DataNode(Node):
     :param args:
     :param kwargs:
     """
+
     counter = 0
 
     @property
@@ -87,18 +88,27 @@ class DataNode(Node):
                 try:
                     output_vars[key] = lambdify_np(value, input_vars)(**input_vars)
                 except:
-                    logger.error('unsupported constraints type.')
-                    raise ValueError('unsupported constraints type.')
+                    logger.error("unsupported constraints type.")
+                    raise ValueError("unsupported constraints type.")
 
         try:
             return Variables({**input_vars, **output_vars}).to_torch_tensor_()
         except:
             return Variables({**input_vars, **output_vars})
 
-    def __init__(self, inputs: Union[Tuple[str, ...], List[str]], outputs: Union[Tuple[str, ...], List[str]],
-                 sample_fn: Callable, loss_fn: str = 'square', lambda_outputs: Union[Tuple[str, ...], List[str]] = None,
-                 name=None, sigma=1.0, var_sigma=False,
-                 *args, **kwargs):
+    def __init__(
+        self,
+        inputs: Union[Tuple[str, ...], List[str]],
+        outputs: Union[Tuple[str, ...], List[str]],
+        sample_fn: Callable,
+        loss_fn: str = "square",
+        lambda_outputs: Union[Tuple[str, ...], List[str]] = None,
+        name=None,
+        sigma=1.0,
+        var_sigma=False,
+        *args,
+        **kwargs,
+    ):
         self.inputs: Union[Tuple, List[str]] = inputs
         self.outputs: Union[Tuple, List[str]] = outputs
         self.lambda_outputs = lambda_outputs
@@ -113,13 +123,22 @@ class DataNode(Node):
         self.loss_fn = loss_fn
 
     def __str__(self):
-        str_list = ["DataNode properties:\n"
-                    "lambda_outputs: {}\n".format(self.lambda_outputs)]
-        return super().__str__() + ''.join(str_list)
+        str_list = [
+            "DataNode properties:\n" "lambda_outputs: {}\n".format(self.lambda_outputs)
+        ]
+        return super().__str__() + "".join(str_list)
 
 
-def get_data_node(fun: Callable, name=None, loss_fn='square', sigma=1., var_sigma=False, *args, **kwargs) -> DataNode:
-    """ Construct a datanode from sampling functions.
+def get_data_node(
+    fun: Callable,
+    name=None,
+    loss_fn="square",
+    sigma=1.0,
+    var_sigma=False,
+    *args,
+    **kwargs,
+) -> DataNode:
+    """Construct a datanode from sampling functions.
 
     :param fun: Each call of the Callable object should return a sampling dict.
     :type fun: Callable
@@ -135,26 +154,56 @@ def get_data_node(fun: Callable, name=None, loss_fn='square', sigma=1., var_sigm
     in_, out_ = fun()
     inputs = list(in_.keys())
     outputs = list(out_.keys())
-    lambda_outputs = list(filter(lambda x: x.startswith('lambda_'), outputs))
-    outputs = list(filter(lambda x: not x.startswith('lambda_'), outputs))
-    name = (fun.__name__ if inspect.isfunction(fun) else type(fun).__name__) if name is None else name
-    dn = DataNode(inputs=inputs, outputs=outputs, sample_fn=fun, lambda_outputs=lambda_outputs, loss_fn=loss_fn,
-                  name=name, sigma=sigma, var_sigma=var_sigma, *args, **kwargs)
+    lambda_outputs = list(filter(lambda x: x.startswith("lambda_"), outputs))
+    outputs = list(filter(lambda x: not x.startswith("lambda_"), outputs))
+    name = (
+        (fun.__name__ if inspect.isfunction(fun) else type(fun).__name__)
+        if name is None
+        else name
+    )
+    dn = DataNode(
+        inputs=inputs,
+        outputs=outputs,
+        sample_fn=fun,
+        lambda_outputs=lambda_outputs,
+        loss_fn=loss_fn,
+        name=name,
+        sigma=sigma,
+        var_sigma=var_sigma,
+        *args,
+        **kwargs,
+    )
     return dn
 
 
-def datanode(_fun: Callable = None, name=None, loss_fn='square', sigma=1., var_sigma=False, **kwargs):
+def datanode(
+    _fun: Callable = None,
+    name=None,
+    loss_fn="square",
+    sigma=1.0,
+    var_sigma=False,
+    **kwargs,
+):
     """As an alternative, decorate Callable classes as Datanode."""
 
     def wrap(fun):
         if inspect.isclass(fun):
-            assert issubclass(fun, SampleDomain), f"{fun} should be subclass of .data.Sample"
+            assert issubclass(
+                fun, SampleDomain
+            ), f"{fun} should be subclass of .data.Sample"
             fun = fun()
         assert isinstance(fun, Callable)
 
         @functools.wraps(fun)
         def wrapped_fun():
-            dn = get_data_node(fun, name=name, loss_fn=loss_fn, sigma=sigma, var_sigma=var_sigma, **kwargs)
+            dn = get_data_node(
+                fun,
+                name=name,
+                loss_fn=loss_fn,
+                sigma=sigma,
+                var_sigma=var_sigma,
+                **kwargs,
+            )
             return dn
 
         return wrapped_fun
@@ -163,9 +212,12 @@ def datanode(_fun: Callable = None, name=None, loss_fn='square', sigma=1., var_s
 
 
 def get_data_nodes(funs: List[Callable], *args, **kwargs) -> Tuple[DataNode]:
-    if 'names' in kwargs:
-        names = kwargs.pop('names')
-        return tuple(get_data_node(fun, name=name, *args, **kwargs) for fun, name in zip(funs, names))
+    if "names" in kwargs:
+        names = kwargs.pop("names")
+        return tuple(
+            get_data_node(fun, name=name, *args, **kwargs)
+            for fun, name in zip(funs, names)
+        )
     else:
         return tuple(get_data_node(fun, *args, **kwargs) for fun in funs)
 

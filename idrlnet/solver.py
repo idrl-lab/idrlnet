@@ -15,7 +15,7 @@ from idrlnet.variable import Variables, DomainVariables
 from idrlnet.graph import VertexTaskPipeline
 import idrlnet
 
-__all__ = ['Solver']
+__all__ = ["Solver"]
 
 
 class Solver(Notifier, Optimizable):
@@ -65,20 +65,23 @@ class Solver(Notifier, Optimizable):
     :param kwargs:
     """
 
-    def __init__(self, sample_domains: Tuple[Union[DataNode, SampleDomain], ...],
-                 netnodes: List[NetNode],
-                 pdes: Optional[List] = None,
-                 network_dir: str = './network_dir',
-                 summary_dir: Optional[str] = None,
-                 max_iter: int = 1000,
-                 save_freq: int = 100,
-                 print_freq: int = 10,
-                 loading: bool = True,
-                 init_network_dirs: Optional[List[str]] = None,
-                 opt_config: Dict = None,
-                 schedule_config: Dict = None,
-                 result_dir='train_domain/results',
-                 **kwargs):
+    def __init__(
+        self,
+        sample_domains: Tuple[Union[DataNode, SampleDomain], ...],
+        netnodes: List[NetNode],
+        pdes: Optional[List] = None,
+        network_dir: str = "./network_dir",
+        summary_dir: Optional[str] = None,
+        max_iter: int = 1000,
+        save_freq: int = 100,
+        print_freq: int = 10,
+        loading: bool = True,
+        init_network_dirs: Optional[List[str]] = None,
+        opt_config: Dict = None,
+        schedule_config: Dict = None,
+        result_dir="train_domain/results",
+        **kwargs,
+    ):
 
         self.network_dir: str = network_dir
         self.domain_losses = {domain.name: domain.loss_fn for domain in sample_domains}
@@ -96,8 +99,16 @@ class Solver(Notifier, Optimizable):
         self.save_freq = save_freq
         self.print_freq = print_freq
         try:
-            self.parse_configure(**{**({"opt_config": opt_config} if opt_config is not None else {}),
-                                    **({"schedule_config": schedule_config} if schedule_config is not None else {})})
+            self.parse_configure(
+                **{
+                    **({"opt_config": opt_config} if opt_config is not None else {}),
+                    **(
+                        {"schedule_config": schedule_config}
+                        if schedule_config is not None
+                        else {}
+                    ),
+                }
+            )
         except Exception:
             logger.error("Optimizer configuration failed")
             raise
@@ -109,7 +120,10 @@ class Solver(Notifier, Optimizable):
                 pass
         self.sample_domains: Tuple[DataNode, ...] = sample_domains
         self.summary_dir = self.network_dir if summary_dir is None else summary_dir
-        self.receivers: List[Receiver] = [SummaryReceiver(self.summary_dir), HandleResultReceiver(result_dir)]
+        self.receivers: List[Receiver] = [
+            SummaryReceiver(self.summary_dir),
+            HandleResultReceiver(result_dir),
+        ]
 
     @property
     def network_dir(self):
@@ -136,12 +150,23 @@ class Solver(Notifier, Optimizable):
         :return: A list of trainable parameters.
         :rtype: List[torch.nn.parameter.Parameter]
         """
-        parameter_list = list(map(lambda _net_node: {'params': _net_node.net.parameters()},
-                                  filter(lambda _net_node: not _net_node.is_reference and (not _net_node.fixed),
-                                         self.netnodes)))
+        parameter_list = list(
+            map(
+                lambda _net_node: {"params": _net_node.net.parameters()},
+                filter(
+                    lambda _net_node: not _net_node.is_reference
+                    and (not _net_node.fixed),
+                    self.netnodes,
+                ),
+            )
+        )
         if len(parameter_list) == 0:
-            '''To make sure successful initialization of optimizers.'''
-            parameter_list = [torch.nn.parameter.Parameter(data=torch.Tensor([0.]), requires_grad=True)]
+            """To make sure successful initialization of optimizers."""
+            parameter_list = [
+                torch.nn.parameter.Parameter(
+                    data=torch.Tensor([0.0]), requires_grad=True
+                )
+            ]
             logger.warning("No trainable parameters found!")
         return parameter_list
 
@@ -158,15 +183,15 @@ class Solver(Notifier, Optimizable):
         """return sovler information, it will return components recursively"""
         str_list = []
         str_list.append("nets: \n")
-        str_list.append(''.join([str(net) for net in self.netnodes]))
+        str_list.append("".join([str(net) for net in self.netnodes]))
         str_list.append("domains: \n")
-        str_list.append(''.join([str(domain) for domain in self.sample_domains]))
-        str_list.append('\n')
-        str_list.append('optimizer config:\n')
+        str_list.append("".join([str(domain) for domain in self.sample_domains]))
+        str_list.append("\n")
+        str_list.append("optimizer config:\n")
         for i, _class in enumerate(type(self).mro()):
             if _class == Optimizable:
                 str_list.append(super(type(self).mro()[i - 1], self).__str__())
-        return ''.join(str_list)
+        return "".join(str_list)
 
     def set_param_ranges(self, param_ranges: Dict):
         for domain in self.sample_domains:
@@ -184,7 +209,7 @@ class Solver(Notifier, Optimizable):
         for value in self.sample_domains:
             if value.name == name:
                 return value
-        raise KeyError(f'domain {name} not exist!')
+        raise KeyError(f"domain {name} not exist!")
 
     def generate_computation_pipeline(self):
         """Generate computation pipeline for all domains.
@@ -195,28 +220,40 @@ class Solver(Notifier, Optimizable):
         self.vertex_pipelines = {}
         for domain_name, var in in_var.items():
             logger.info(f"Constructing computation graph for domain <{domain_name}>")
-            self.vertex_pipelines[domain_name] = VertexTaskPipeline(self.netnodes + self.pdes, var,
-                                                                    self.outvar_dict_index[domain_name])
+            self.vertex_pipelines[domain_name] = VertexTaskPipeline(
+                self.netnodes + self.pdes, var, self.outvar_dict_index[domain_name]
+            )
             self.vertex_pipelines[domain_name].display(
-                os.path.join(self.network_dir, f'{domain_name}_{self.global_step}.png'))
+                os.path.join(self.network_dir, f"{domain_name}_{self.global_step}.png")
+            )
 
-    def forward_through_all_graph(self, invar_dict: DomainVariables,
-                                  req_outvar_dict_index: Dict[str, List[str]]) -> DomainVariables:
+    def forward_through_all_graph(
+        self, invar_dict: DomainVariables, req_outvar_dict_index: Dict[str, List[str]]
+    ) -> DomainVariables:
         outvar_dict = {}
         for (key, req_outvar_names) in req_outvar_dict_index.items():
-            outvar_dict[key] = self.vertex_pipelines[key].forward_pipeline(invar_dict[key], req_outvar_names)
+            outvar_dict[key] = self.vertex_pipelines[key].forward_pipeline(
+                invar_dict[key], req_outvar_names
+            )
         return outvar_dict
 
     def append_sample_domain(self, datanode):
         self.sample_domains = self.sample_domains + (datanode,)
 
     def _generate_dict_index(self) -> None:
-        self.invar_dict_index = {domain.name: domain.inputs for domain in self.sample_domains}
-        self.outvar_dict_index = {domain.name: domain.outputs for domain in self.sample_domains}
-        self.lambda_dict_index = {domain.name: domain.lambda_outputs for domain in self.sample_domains}
+        self.invar_dict_index = {
+            domain.name: domain.inputs for domain in self.sample_domains
+        }
+        self.outvar_dict_index = {
+            domain.name: domain.outputs for domain in self.sample_domains
+        }
+        self.lambda_dict_index = {
+            domain.name: domain.lambda_outputs for domain in self.sample_domains
+        }
 
-    def generate_in_out_dict(self, samples: DomainVariables) -> \
-            Tuple[DomainVariables, DomainVariables, DomainVariables]:
+    def generate_in_out_dict(
+        self, samples: DomainVariables
+    ) -> Tuple[DomainVariables, DomainVariables, DomainVariables]:
         invar_dict = {}
         for domain, variable in samples.items():
             inner = {}
@@ -226,20 +263,40 @@ class Solver(Notifier, Optimizable):
             invar_dict[domain] = inner
 
         invar_dict = {
-            domain: Variables({key: val for key, val in variable.items() if key in self.invar_dict_index[domain]}) for
-            domain, variable in samples.items()}
+            domain: Variables(
+                {
+                    key: val
+                    for key, val in variable.items()
+                    if key in self.invar_dict_index[domain]
+                }
+            )
+            for domain, variable in samples.items()
+        }
         outvar_dict = {
-            domain: Variables({key: val for key, val in variable.items() if key in self.outvar_dict_index[domain]}) for
-            domain, variable in samples.items()}
+            domain: Variables(
+                {
+                    key: val
+                    for key, val in variable.items()
+                    if key in self.outvar_dict_index[domain]
+                }
+            )
+            for domain, variable in samples.items()
+        }
         lambda_dict = {
-            domain: Variables({key: val for key, val in variable.items() if key in self.lambda_dict_index[domain]}) for
-            domain, variable in samples.items()}
+            domain: Variables(
+                {
+                    key: val
+                    for key, val in variable.items()
+                    if key in self.lambda_dict_index[domain]
+                }
+            )
+            for domain, variable in samples.items()
+        }
         return invar_dict, outvar_dict, lambda_dict
 
     def solve(self):
-        """After the solver instance is initialized, the method could be called to solve the entire problem.
-        """
-        self.notify(self, message={Signal.SOLVE_START: 'default'})
+        """After the solver instance is initialized, the method could be called to solve the entire problem."""
+        self.notify(self, message={Signal.SOLVE_START: "default"})
         while self.global_step < self.max_iter:
             loss = self.train_pipe()
             if self.global_step % self.print_freq == 0:
@@ -247,13 +304,13 @@ class Solver(Notifier, Optimizable):
             if self.global_step % self.save_freq == 0:
                 self.save()
         logger.info("Training Stage Ends")
-        self.notify(self, message={Signal.SOLVE_END: 'default'})
+        self.notify(self, message={Signal.SOLVE_END: "default"})
 
     def train_pipe(self):
         """Sample once; calculate the loss once; backward propagation once
         :return: None
         """
-        self.notify(self, message={Signal.TRAIN_PIPE_START: 'defaults'})
+        self.notify(self, message={Signal.TRAIN_PIPE_START: "defaults"})
         for opt in self.optimizers:
             opt.zero_grad()
         samples = self.sample_variables_from_domains()
@@ -263,7 +320,7 @@ class Solver(Notifier, Optimizable):
             loss = self.compute_loss(in_var, pred_out_sample, true_out, lambda_out)
         except RuntimeError:
             raise
-        self.notify(self, message={Signal.BEFORE_BACKWARD: 'defaults'})
+        self.notify(self, message={Signal.BEFORE_BACKWARD: "defaults"})
         loss.backward()
         for opt in self.optimizers:
             opt.step()
@@ -271,40 +328,64 @@ class Solver(Notifier, Optimizable):
 
         for scheduler in self.schedulers:
             scheduler.step(self.global_step)
-        self.notify(self, message={Signal.TRAIN_PIPE_END: 'defaults'})
+        self.notify(self, message={Signal.TRAIN_PIPE_END: "defaults"})
         return loss
 
-    def compute_loss(self, in_var: DomainVariables, pred_out_sample: DomainVariables,
-                     true_out: DomainVariables,
-                     lambda_out: DomainVariables) -> torch.Tensor:
-        """Compute the total loss in one epoch.
-
-        """
+    def compute_loss(
+        self,
+        in_var: DomainVariables,
+        pred_out_sample: DomainVariables,
+        true_out: DomainVariables,
+        lambda_out: DomainVariables,
+    ) -> torch.Tensor:
+        """Compute the total loss in one epoch."""
         diff = dict()
         for domain_name, domain_val in true_out.items():
             if len(domain_val) == 0:
                 continue
-            diff[domain_name] = pred_out_sample[domain_name] - domain_val.to_torch_tensor_()
+            diff[domain_name] = (
+                pred_out_sample[domain_name] - domain_val.to_torch_tensor_()
+            )
             diff[domain_name].update(lambda_out[domain_name])
-            diff[domain_name].update(area=in_var[domain_name]['area'])
+            diff[domain_name].update(area=in_var[domain_name]["area"])
 
         for domain, var in diff.items():
             lambda_diff = dict()
             for constraint, _ in var.items():
-                if 'lambda_' + constraint in in_var[domain].keys():
-                    lambda_diff['lambda_' + constraint] = in_var[domain]['lambda_' + constraint]
+                if "lambda_" + constraint in in_var[domain].keys():
+                    lambda_diff["lambda_" + constraint] = in_var[domain][
+                        "lambda_" + constraint
+                    ]
             var.update(lambda_diff)
 
         self.loss_component = Variables(
             ChainMap(
-                *[diff[domain_name].weighted_loss(f"{domain_name}_loss",
-                                                  loss_function=self.domain_losses[domain_name]) for
-                  domain_name, domain_val in
-                  diff.items()]))
+                *[
+                    diff[domain_name].weighted_loss(
+                        f"{domain_name}_loss",
+                        loss_function=self.domain_losses[domain_name],
+                    )
+                    for domain_name, domain_val in diff.items()
+                ]
+            )
+        )
         self.notify(self, message={Signal.BEFORE_COMPUTE_LOSS: {**self.loss_component}})
-        loss = sum({domain_name: self.get_sample_domain(domain_name).sigma * self.loss_component[f"{domain_name}_loss"] for
-                    domain_name in diff}.values())
-        self.notify(self, message={Signal.AFTER_COMPUTE_LOSS: {**self.loss_component, **{'total_loss': loss}}})
+        loss = sum(
+            {
+                domain_name: self.get_sample_domain(domain_name).sigma
+                * self.loss_component[f"{domain_name}_loss"]
+                for domain_name in diff
+            }.values()
+        )
+        self.notify(
+            self,
+            message={
+                Signal.AFTER_COMPUTE_LOSS: {
+                    **self.loss_component,
+                    **{"total_loss": loss},
+                }
+            },
+        )
         return loss
 
     def infer_step(self, domain_attr: Dict[str, List[str]]) -> DomainVariables:
@@ -323,40 +404,46 @@ class Solver(Notifier, Optimizable):
         return {data_node.name: data_node.sample() for data_node in self.sample_domains}
 
     def save(self):
-        """Save parameters of netnodes and the global step to `model.ckpt`.
-        """
-        save_path = os.path.join(self.network_dir, 'model.ckpt')
+        """Save parameters of netnodes and the global step to `model.ckpt`."""
+        save_path = os.path.join(self.network_dir, "model.ckpt")
         logger.info("save to path: {}".format(os.path.abspath(save_path)))
-        save_dict = {f"{net_node.name}_dict": net_node.state_dict() for net_node in
-                     filter(lambda _net: not _net.is_reference, self.netnodes)}
+        save_dict = {
+            f"{net_node.name}_dict": net_node.state_dict()
+            for net_node in filter(lambda _net: not _net.is_reference, self.netnodes)
+        }
         for i, opt in enumerate(self.optimizers):
-            save_dict['optimizer_{}_dict'.format(i)] = opt.state_dict()
-        save_dict['global_step'] = self.global_step
+            save_dict["optimizer_{}_dict".format(i)] = opt.state_dict()
+        save_dict["global_step"] = self.global_step
         torch.save(save_dict, save_path)
 
     def init_load(self):
         for network_dir in self.init_network_dirs:
-            save_path = os.path.join(network_dir, 'model.ckpt')
+            save_path = os.path.join(network_dir, "model.ckpt")
             save_dict = torch.load(save_path)
             for net_node in self.netnodes:
-                if f"{net_node.name}_dict" in save_dict.keys() and not net_node.is_reference:
+                if (
+                    f"{net_node.name}_dict" in save_dict.keys()
+                    and not net_node.is_reference
+                ):
                     net_node.load_state_dict(save_dict[f"{net_node.name}_dict"])
                     logger.info(f"Successfully loading initialization {net_node.name}.")
 
     def load(self):
-        """Load parameters of netnodes and the global step from `model.ckpt`.
-        """
-        save_path = os.path.join(self.network_dir, 'model.ckpt')
+        """Load parameters of netnodes and the global step from `model.ckpt`."""
+        save_path = os.path.join(self.network_dir, "model.ckpt")
         if not idrlnet.GPU_ENABLED:
-            save_dict = torch.load(save_path, map_location=torch.device('cpu'))
+            save_dict = torch.load(save_path, map_location=torch.device("cpu"))
         else:
             save_dict = torch.load(save_path)
         # todo: save on CPU, load on GPU
         for i, opt in enumerate(self.optimizers):
-            opt.load_state_dict(save_dict['optimizer_{}_dict'.format(i)])
-        self.global_step = save_dict['global_step']
+            opt.load_state_dict(save_dict["optimizer_{}_dict".format(i)])
+        self.global_step = save_dict["global_step"]
         for net_node in self.netnodes:
-            if f"{net_node.name}_dict" in save_dict.keys() and not net_node.is_reference:
+            if (
+                f"{net_node.name}_dict" in save_dict.keys()
+                and not net_node.is_reference
+            ):
                 net_node.load_state_dict(save_dict[f"{net_node.name}_dict"])
                 logger.info(f"Successfully loading {net_node.name}.")
 
@@ -364,27 +451,34 @@ class Solver(Notifier, Optimizable):
         """
         Call interfaces of ``Optimizable``
         """
-        opt = self.optimizer_config['optimizer']
+        opt = self.optimizer_config["optimizer"]
         if isinstance(opt, str) and opt in Optimizable.OPTIMIZER_MAP:
-            opt = Optimizable.OPTIMIZER_MAP[opt](self.trainable_parameters,
-                                                 **{k: v for k, v in self.optimizer_config.items() if k != 'optimizer'})
+            opt = Optimizable.OPTIMIZER_MAP[opt](
+                self.trainable_parameters,
+                **{k: v for k, v in self.optimizer_config.items() if k != "optimizer"},
+            )
         elif isinstance(opt, Callable):
             opt = opt
         else:
             raise NotImplementedError(
-                'The optimizer is not implemented. You may use one of the following optimizer:\n' + '\n'.join(
-                    Optimizable.OPTIMIZER_MAP.keys()) + '\n Example: opt_config=dict(optimizer="Adam", lr=1e-3)')
+                "The optimizer is not implemented. You may use one of the following optimizer:\n"
+                + "\n".join(Optimizable.OPTIMIZER_MAP.keys())
+                + '\n Example: opt_config=dict(optimizer="Adam", lr=1e-3)'
+            )
 
-        lr_scheduler = self.schedule_config['scheduler']
+        lr_scheduler = self.schedule_config["scheduler"]
         if isinstance(lr_scheduler, str) and lr_scheduler in Optimizable.SCHEDULE_MAP:
-            lr_scheduler = Optimizable.SCHEDULE_MAP[lr_scheduler](opt,
-                                                                  **{k: v for k, v in self.schedule_config.items() if
-                                                                     k != 'scheduler'})
+            lr_scheduler = Optimizable.SCHEDULE_MAP[lr_scheduler](
+                opt,
+                **{k: v for k, v in self.schedule_config.items() if k != "scheduler"},
+            )
         elif isinstance(lr_scheduler, Callable):
             lr_scheduler = lr_scheduler
         else:
             raise NotImplementedError(
-                'The scheduler is not implemented. You may use one of the following scheduler:\n' + '\n'.join(
-                    Optimizable.SCHEDULE_MAP.keys()) + '\n Example: schedule_config=dict(scheduler="ExponentialLR", gamma=0.999')
+                "The scheduler is not implemented. You may use one of the following scheduler:\n"
+                + "\n".join(Optimizable.SCHEDULE_MAP.keys())
+                + '\n Example: schedule_config=dict(scheduler="ExponentialLR", gamma=0.999'
+            )
         self.optimizers = [opt]
         self.schedulers = [lr_scheduler]
