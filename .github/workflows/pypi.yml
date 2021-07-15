@@ -6,7 +6,6 @@ on:
   release:
     types: [published, edited]
 
-
 jobs:
   build:
 
@@ -34,5 +33,8 @@ jobs:
       run: |
         python setup.py sdist bdist_wheel
         twine upload --repository-url dist/*
-
-
+      
+    - name: Install from PyPI
+      run: |
+        pip install -U idrlnet
+        pip show idrlnet
