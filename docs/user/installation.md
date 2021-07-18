@@ -17,10 +17,14 @@ Note: To avoid version conflicts, please use some tools to create a virtual envi
 
 ## Docker
 
+Pull latest docker image from Dockerhub.
+
 ```bash
 docker pull idrl/idrlnet:latest
-docker run idrl/idrlnet:latest
+docker run -it idrl/idrlnet:latest bash
 ```
+
+Note: Available tags can be found in [Dockerhub](https://hub.docker.com/repository/docker/idrl/idrlnet).
 
 ## Anaconda
 
