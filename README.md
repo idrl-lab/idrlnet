@@ -1,13 +1,21 @@
-[![License](https://img.shields.io/github/license/analysiscenter/pydens.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Python](https://img.shields.io/badge/python-3.8-blue.svg)](https://python.org)
-[![Documentation Status](https://readthedocs.org/projects/idrlnet/badge/?version=latest)](https://idrlnet.readthedocs.io/en/latest/?badge=latest)
-
 # IDRLnet
+
+[![License](https://img.shields.io/github/license/analysiscenter/pydens.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Python](https://img.shields.io/badge/python-3.7/3.8/3.9-blue.svg)](https://python.org)
+[![Documentation Status](https://readthedocs.org/projects/idrlnet/badge/?version=latest)](https://idrlnet.readthedocs.io/en/latest/?badge=latest)
+[![PyPI version](https://badge.fury.io/py/idrlnet.svg)](https://badge.fury.io/py/idrlnet)
+[![DockerHub](https://img.shields.io/docker/pulls/idrl/idrlnet.svg)](https://hub.docker.com/r/idrl/idrlnet)
+[![CodeFactor](https://www.codefactor.io/repository/github/idrl-lab/idrlnet/badge/master)](https://www.codefactor.io/repository/github/idrl-lab/idrlnet/overview/master)
 
 
 **IDRLnet** is a machine learning library on top of [PyTorch](https://pytorch.org/). Use IDRLnet if you need a machine
 learning library that solves both forward and inverse differential equations via physics-informed neural
 networks (PINN). IDRLnet is a flexible framework inspired by [Nvidia Simnet](https://developer.nvidia.com/simnet>).
+
+## Docs
+
+- [Full docs](https://idrlnet.readthedocs.io/en/latest/)
+- [Tutorial](https://idrlnet.readthedocs.io/en/latest/user/get_started/tutorial.html)
 
 ## Installation
 
@@ -15,7 +23,7 @@ Choose one of the following installation methods.
 
 ### PyPI
 
-Simple installation from PyPI
+Simple installation from PyPI.
 
 ```bash
 pip install -U idrlnet
@@ -25,13 +33,23 @@ Note: To avoid version conflicts, please use some tools to create a virtual envi
 
 ### Docker
 
+Pull latest docker image from Dockerhub.
+
 ```bash
 docker pull idrl/idrlnet:latest
+docker run -it idrl/idrlnet:latest bash
+
 ```
+
+Note: Available tags can be found in [Dockerhub](https://hub.docker.com/repository/docker/idrl/idrlnet).
 
 ### Anaconda
 
-
+```bash
+conda create -n idrlnet_dev python=3.8 -y
+conda activate idrlnet_dev
+pip install idrlnet
+```
 
 ### From Source
 

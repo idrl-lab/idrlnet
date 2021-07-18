@@ -12,8 +12,8 @@ Welcome to idrlnet's documentation!
 Features
 --------
 
-IDRLnet is a machine learning library on top of `Pytorch <https://www.tensorflow.org/>`_. Use IDRLnet if you need a machine
-learning library that solves both forward and inverse partial differential equations (PDEs) via physics-informed neural
+IDRLnet is a machine learning library on top of `PyTorch <https://pytorch.org/>`_. Use IDRLnet if you need a machine
+learning library that solves both forward and inverse differential equations via physics-informed neural
 networks (PINN). IDRLnet is a flexible framework inspired by `Nvidia Simnet <https://developer.nvidia.com/simnet>`_.
 
 IDRLnet supports
