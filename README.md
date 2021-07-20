@@ -16,6 +16,8 @@ networks (PINN). IDRLnet is a flexible framework inspired by [Nvidia Simnet](htt
 
 - [Full docs](https://idrlnet.readthedocs.io/en/latest/)
 - [Tutorial](https://idrlnet.readthedocs.io/en/latest/user/get_started/tutorial.html)
+- Paper:
+   - IDRLnet: A Physics-Informed Neural Network Library. [arXiv](https://arxiv.org/abs/2107.04320)
 
 ## Installation
 
