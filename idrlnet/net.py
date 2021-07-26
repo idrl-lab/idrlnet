@@ -4,11 +4,11 @@ from idrlnet.node import Node
 from typing import Tuple, List, Dict, Union
 from contextlib import ExitStack
 
-__all__ = ['NetNode']
+__all__ = ["NetNode"]
 
 
 class WrapEvaluate:
-    def __init__(self, binding_node: 'NetNode'):
+    def __init__(self, binding_node: "NetNode"):
         self.binding_node = binding_node
 
     def __call__(self, inputs):
@@ -16,15 +16,23 @@ class WrapEvaluate:
         if isinstance(inputs, dict):
             keep_type = dict
             inputs = torch.cat(
-                [torch.tensor(inputs[key], dtype=torch.float32) if not isinstance(inputs[key], torch.Tensor) else
-                 inputs[
-                     key] for key in inputs], dim=1)
+                [
+                    torch.tensor(inputs[key], dtype=torch.float32)
+                    if not isinstance(inputs[key], torch.Tensor)
+                    else inputs[key]
+                    for key in inputs
+                ],
+                dim=1,
+            )
         with ExitStack() as es:
             if self.binding_node.require_no_grad:
                 es.enter_context(torch.no_grad())
             output_var = self.binding_node.net(inputs)
         if keep_type == dict:
-            output_var = {outkey: output_var[:, i:i + 1] for i, outkey in enumerate(self.binding_node.outputs)}
+            output_var = {
+                outkey: output_var[:, i : i + 1]
+                for i, outkey in enumerate(self.binding_node.outputs)
+            }
         return output_var
 
 
@@ -63,9 +71,18 @@ class NetNode(Node):
     def net(self, net):
         self._net = net
 
-    def __init__(self, inputs: Union[Tuple, List[str]], outputs: Union[Tuple, List[str]],
-                 net: torch.nn.Module, fixed: bool = False, require_no_grad: bool = False, is_reference=False,
-                 name=None, *args, **kwargs):
+    def __init__(
+        self,
+        inputs: Union[Tuple, List[str]],
+        outputs: Union[Tuple, List[str]],
+        net: torch.nn.Module,
+        fixed: bool = False,
+        require_no_grad: bool = False,
+        is_reference=False,
+        name=None,
+        *args,
+        **kwargs
+    ):
         self.is_reference = is_reference
         self.inputs: Union[Tuple, List[str]] = inputs
         self.outputs: Union[Tuple, List[str]] = outputs
@@ -89,5 +106,5 @@ class NetNode(Node):
     def load_state_dict(self, state_dict: Dict[str, torch.Tensor], strict: bool = True):
         return self.net.load_state_dict(state_dict, strict)
 
-    def state_dict(self, destination=None, prefix: str = '', keep_vars: bool = False):
+    def state_dict(self, destination=None, prefix: str = "", keep_vars: bool = False):
         return self.net.state_dict(destination, prefix, keep_vars)

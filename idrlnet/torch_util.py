@@ -10,7 +10,7 @@ import torch
 from idrlnet.header import DIFF_SYMBOL
 from functools import reduce
 
-__all__ = ['integral', 'torch_lambdify']
+__all__ = ["integral", "torch_lambdify"]
 
 
 def integral_fun(x):
@@ -19,7 +19,7 @@ def integral_fun(x):
     return x
 
 
-integral = implemented_function('integral', lambda x: integral_fun(x))
+integral = implemented_function("integral", lambda x: integral_fun(x))
 
 
 def torch_lambdify(r, f, *args, **kwargs):
@@ -41,27 +41,27 @@ def torch_lambdify(r, f, *args, **kwargs):
 
 # todo: more functions
 TORCH_SYMPY_PRINTER = {
-    'sin': torch.sin,
-    'cos': torch.cos,
-    'tan': torch.tan,
-    'exp': torch.exp,
-    'sqrt': torch.sqrt,
-    'Abs': torch.abs,
-    'tanh': torch.tanh,
-    'DiracDelta': torch.zeros_like,
-    'Heaviside': lambda x: torch.heaviside(x, torch.tensor([0.])),
-    'amin': lambda x: reduce(lambda y, z: torch.minimum(y, z), x),
-    'amax': lambda x: reduce(lambda y, z: torch.maximum(y, z), x),
-    'Min': lambda *x: reduce(lambda y, z: torch.minimum(y, z), x),
-    'Max': lambda *x: reduce(lambda y, z: torch.maximum(y, z), x),
-    'equal': lambda x, y: torch.isclose(x, y),
-    'Xor': torch.logical_xor,
-    'log': torch.log,
-    'sinh': torch.sinh,
-    'cosh': torch.cosh,
-    'asin': torch.arcsin,
-    'acos': torch.arccos,
-    'atan': torch.arctan,
+    "sin": torch.sin,
+    "cos": torch.cos,
+    "tan": torch.tan,
+    "exp": torch.exp,
+    "sqrt": torch.sqrt,
+    "Abs": torch.abs,
+    "tanh": torch.tanh,
+    "DiracDelta": torch.zeros_like,
+    "Heaviside": lambda x: torch.heaviside(x, torch.tensor([0.0])),
+    "amin": lambda x: reduce(lambda y, z: torch.minimum(y, z), x),
+    "amax": lambda x: reduce(lambda y, z: torch.maximum(y, z), x),
+    "Min": lambda *x: reduce(lambda y, z: torch.minimum(y, z), x),
+    "Max": lambda *x: reduce(lambda y, z: torch.maximum(y, z), x),
+    "equal": lambda x, y: torch.isclose(x, y),
+    "Xor": torch.logical_xor,
+    "log": torch.log,
+    "sinh": torch.sinh,
+    "cosh": torch.cosh,
+    "asin": torch.arcsin,
+    "acos": torch.arccos,
+    "atan": torch.arctan,
 }
 
 
@@ -75,9 +75,12 @@ def _replace_derivatives(expr):
         expr = expr.subs(deriv, Function(str(deriv))(*deriv.free_symbols))
     while True:
         try:
-            custom_fun = {_fun for _fun in expr.atoms(Function) if
-                          (_fun.class_key()[1] == 0) and (not _fun.class_key()[2] == 'integral')
-                          }.pop()
+            custom_fun = {
+                _fun
+                for _fun in expr.atoms(Function)
+                if (_fun.class_key()[1] == 0)
+                and (not _fun.class_key()[2] == "integral")
+            }.pop()
             new_symbol_name = str(custom_fun)
             expr = expr.subs(custom_fun, Symbol(new_symbol_name))
         except KeyError:
@@ -90,7 +93,10 @@ class UnderlineDerivativePrinter(StrPrinter):
         return expr.func.__name__
 
     def _print_Derivative(self, expr):
-        return "".join([str(expr.args[0].func)] + [order * (DIFF_SYMBOL + str(key)) for key, order in expr.args[1:]])
+        return "".join(
+            [str(expr.args[0].func)]
+            + [order * (DIFF_SYMBOL + str(key)) for key, order in expr.args[1:]]
+        )
 
 
 def sstr(expr, **settings):
