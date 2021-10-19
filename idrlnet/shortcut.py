@@ -10,4 +10,4 @@ from idrlnet.callbacks import GradientReceiver
 from idrlnet.receivers import Receiver, Signal
 from idrlnet.variable import Variables, export_var
 from idrlnet.header import logger
-from idrlnet import GPU_ENABLED
+from idrlnet import GPU_AVAILABLE, GPU_ENABLED, use_gpu
