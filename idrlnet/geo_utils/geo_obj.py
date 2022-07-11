@@ -4,7 +4,7 @@ import math
 from math import pi
 from typing import Union, List, Tuple
 import numpy as np
-from sympy import symbols, Abs, sqrt, Max, Min, cos, sin, log, sign, Heaviside
+from sympy import symbols, Abs, sqrt, Max, Min, cos, sin, log, sign, Heaviside, asin
 from sympy.vector import CoordSys3D
 from .geo import Edge, Geometry1D, Geometry2D, Geometry3D
 
@@ -662,11 +662,21 @@ class Box(Geometry3D):
 
 class Sphere(Geometry3D):
     def __init__(self, center, radius):
-        x, y, z, v_1, v_2, u_1, u_2 = symbols("x y z v_1 v_2 u_1 u_2")
-        ranges = {v_1: (0, 1), v_2: (0, 1), u_1: (0, 1), u_2: (0, 1)}
-        r_1 = sqrt(-log(v_1)) * cos(2 * pi * u_1)
-        r_2 = sqrt(-log(v_1)) * sin(2 * pi * u_1)
-        r_3 = sqrt(-log(v_2)) * cos(2 * pi * u_2)
+        x, y, z, v_1, v_2 = symbols("x y z v_1 v_2")
+        ranges = {v_1: (0, 1), v_2: (0, 1)}
+
+        theta = 2 * pi * v_1
+        r = sqrt(v_2)
+
+        phi = 2 * asin(r)  # latitude
+        r_1 = cos(theta) * sin(phi)
+        r_2 = sin(theta) * sin(phi)
+        r_3 = cos(phi)
+        # x, y, z, v_1, v_2, u_1, u_2 = symbols("x y z v_1 v_2 u_1 u_2")
+        # ranges = {v_1: (0, 1), v_2: (0, 1), u_1: (0, 1), u_2: (0, 1)}
+        # r_1 = sqrt(-log(v_1)) * cos(2 * pi * u_1)
+        # r_2 = sqrt(-log(v_1)) * sin(2 * pi * u_1)
+        # r_3 = sqrt(-log(v_2)) * cos(2 * pi * u_2)
 
         norm = sqrt(r_1 ** 2 + r_2 ** 2 + r_3 ** 2)
         edge_1 = Edge(
