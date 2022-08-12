@@ -223,7 +223,7 @@ def get_data_nodes(funs: List[Callable], *args, **kwargs) -> Tuple[DataNode]:
 
 
 class SampleDomain(metaclass=abc.ABCMeta):
-    """Template for Callable sampling function."""
+    """The Template for Callable sampling functions."""
 
     @abc.abstractmethod
     def sampling(self, *args, **kwargs):

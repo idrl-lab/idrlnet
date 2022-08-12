@@ -3,7 +3,7 @@ Consider the 1d wave equation:
 
 $$
 \begin{equation}
-\frac{\partial^2u}{\partial t^2}=c\frac{\partial^2u}{\partial x^2},
+\frac{\partial^2u}{\partial t^2}=c^2\frac{\partial^2u}{\partial x^2},
 \end{equation}
 $$
 where $c>0$ is unknown and is to be estimated. A group of data pairs $\{x_i, t_i, u_i\}_{i=1,2,\cdot,N}$ is observed.
@@ -11,7 +11,7 @@ Then the problem is formulated as:
 
 $$
 \min_{u,c} \sum_{i=1,2,\cdots,N} \|u(x_i, t_i)-u_i\|^2\\
-s.t. \frac{\partial^2u}{\partial t^2}=c\frac{\partial^2u}{\partial x^2}
+s.t. \frac{\partial^2u}{\partial t^2}=c^2\frac{\partial^2u}{\partial x^2}
 $$
 
 In the context of PINN, $u$ is parameterized to $u_\theta$. 
@@ -20,7 +20,7 @@ The problem above is transformed to the discrete form:
 $$
 \min_{\theta,c} 
  w_1\sum_{i=1,2,\cdots,N} \|u_\theta(x_i, t_i)-u_i\|^2
-+w_2\sum_{i=1,2,\cdots,M}\left|\frac{\partial^2u_\theta(x_i,t_i)}{\partial t^2}-c\frac{\partial^2u_\theta(x_i,t_i)}{\partial x^2}\right|^2.
++w_2\sum_{i=1,2,\cdots,M}\left|\frac{\partial^2u_\theta(x_i,t_i)}{\partial t^2}-c^2\frac{\partial^2u_\theta(x_i,t_i)}{\partial x^2}\right|^2.
 $$
 
 ## Importing External Data
