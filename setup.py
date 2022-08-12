@@ -21,7 +21,7 @@ def load_requirements(path_dir=here, comment_char="#"):
 
 setuptools.setup(
     name="idrlnet",  # Replace with your own username
-    version="0.0.1",
+    version="0.1.0-rc1",
     author="Intelligent Design & Robust Learning lab",
     author_email="weipeng@deepinfar.cn",
     description="IDRLnet",
