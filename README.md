@@ -65,12 +65,26 @@ IDRLnet supports
 
 -  complex domain geometries without mesh generation. Provided geometries include interval, triangle, rectangle, polygon, circle, sphere... Other geometries can be constructed using three boolean operations: union, difference, and intersection;
    ![Geometry](https://raw.githubusercontent.com/weipeng0098/picture/master/20210617081809.png)
--  sampling in the interior of the defined geometry or on the boundary with given conditions.
--  enables the user code to be structured. Data sources, operations, constraints are all represented by ``Node``. The graph will be automatically constructed via label symbols of each node. Getting rid of the explicit construction via explicit expressions, users model problems more naturally.
+   
+- sampling in the interior of the defined geometry or on the boundary with given conditions.
+
+- enables the user code to be structured. Data sources, operations, constraints are all represented by ``Node``. The graph will be automatically constructed via label symbols of each node. Getting rid of the explicit construction via explicit expressions, users model problems more naturally.
+
+- builds computational graph automatically;
+
+   ![computationDomain](https://raw.githubusercontent.com/weipeng0098/picture/master/20220815142531.png)
+
+-  user-defined callbacks;
+   
+   ![callback](https://raw.githubusercontent.com/weipeng0098/picture/master/20220815142621.png)
+   
 -  solving variational minimization problem;
    <img src="https://raw.githubusercontent.com/weipeng0098/picture/master/20210617082331.gif" alt="miniface" style="zoom:33%;" />
--  solving integral differential equation;
--  adaptive resampling;
+   
+- solving integral differential equation;
+
+- adaptive resampling;
+
 -  recover unknown parameters of PDEs from noisy measurement data.
 
 It is also easy to customize IDRLnet to meet new demands.
