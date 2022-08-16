@@ -7,10 +7,7 @@
 [![DockerHub](https://img.shields.io/docker/pulls/idrl/idrlnet.svg)](https://hub.docker.com/r/idrl/idrlnet)
 [![CodeFactor](https://www.codefactor.io/repository/github/idrl-lab/idrlnet/badge/master)](https://www.codefactor.io/repository/github/idrl-lab/idrlnet/overview/master)
 
-
-**IDRLnet** is a machine learning library on top of [PyTorch](https://pytorch.org/). Use IDRLnet if you need a machine
-learning library that solves both forward and inverse differential equations via physics-informed neural
-networks (PINN). IDRLnet is a flexible framework inspired by [Nvidia Simnet](https://developer.nvidia.com/simnet>).
+**IDRLnet** is a machine learning library on top of [PyTorch](https://pytorch.org/). Use IDRLnet if you need a machine learning library that solves both forward and inverse differential equations via physics-informed neural networks (PINN). IDRLnet is a flexible framework inspired by [Nvidia Simnet](https://developer.nvidia.com/simnet>).
 
 ## Docs
 
@@ -66,21 +63,27 @@ pip install -e .
 
 IDRLnet supports
 
--  complex domain geometries without mesh generation. Provided geometries include interval, triangle, rectangle, polygon,
-   circle, sphere... Other geometries can be constructed using three boolean operations: union, difference, and
-   intersection;
+-  complex domain geometries without mesh generation. Provided geometries include interval, triangle, rectangle, polygon, circle, sphere... Other geometries can be constructed using three boolean operations: union, difference, and intersection;
+   ![Geometry](https://raw.githubusercontent.com/weipeng0098/picture/master/20210617081809.png)
+   
+- sampling in the interior of the defined geometry or on the boundary with given conditions.
 
--  sampling in the interior of the defined geometry or on the boundary with given conditions.
+- enables the user code to be structured. Data sources, operations, constraints are all represented by ``Node``. The graph will be automatically constructed via label symbols of each node. Getting rid of the explicit construction via explicit expressions, users model problems more naturally.
 
--  enables the user code to be structured. Data sources, operations, constraints are all represented by ``Node``. The graph
-   will be automatically constructed via label symbols of each node. Getting rid of the explicit construction via
-   explicit expressions, users model problems more naturally.
+- builds computational graph automatically;
 
+   ![computationDomain](https://raw.githubusercontent.com/weipeng0098/picture/master/20220815142531.png)
+
+-  user-defined callbacks;
+   
+   ![callback](https://raw.githubusercontent.com/weipeng0098/picture/master/20220815142621.png)
+   
 -  solving variational minimization problem;
+   <img src="https://raw.githubusercontent.com/weipeng0098/picture/master/20210617082331.gif" alt="miniface" style="zoom:33%;" />
+   
+- solving integral differential equation;
 
--  solving integral differential equation;
-
--  adaptive resampling;
+- adaptive resampling;
 
 -  recover unknown parameters of PDEs from noisy measurement data.
 
@@ -99,12 +102,10 @@ First off, thanks for taking the time to contribute!
 
 -  **Reporting bugs.** To report a bug, simply open an issue in the GitHub "Issues" section.
 
--  **Suggesting enhancements.** To submit an enhancement suggestion for IDRLnet, including completely new features and
-   minor improvements to existing functionality, let us know by opening an issue.
-
--  **Pull requests.** If you made improvements to IDRLnet, fixed a bug, or had a new example, feel free to send us a
-   pull-request.
-
+-  **Suggesting enhancements.** To submit an enhancement suggestion for IDRLnet, including completely new features and minor improvements to existing functionality, let us know by opening an issue.
+   
+-  **Pull requests.** If you made improvements to IDRLnet, fixed a bug, or had a new example, feel free to send us a pull-request.
+   
 -  **Asking questions.** To get help on how to use IDRLnet or its functionalities, you can as well open an issue.
 
 -  **Answering questions.** If you know the answer to any question in the "Issues", you are welcomed to answer.
