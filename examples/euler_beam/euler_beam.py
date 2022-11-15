@@ -63,9 +63,7 @@ solver = sc.Solver(
     ),
     netnodes=[net],
     pdes=[pde1, pde2, pde3, pde4],
-    max_iter=200,
-    opt_config=dict(optimizer='LBFGS', lr=1)
-)
+    max_iter=2000)
 solver.solve()
 
 
