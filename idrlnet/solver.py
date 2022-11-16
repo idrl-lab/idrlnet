@@ -312,7 +312,7 @@ class Solver(Notifier, Optimizable):
         """
         self.notify(self, message={Signal.TRAIN_PIPE_START: "defaults"})
         for opt in self.optimizers:
-            print('Running optimization with %s'%(self.optimizer_config['optimizer']))
+            # print('Running optimization with %s'%(self.optimizer_config['optimizer']))
             if self.optimizer_config['optimizer'] == 'LBFGS':
                 def closure():
                     opt.zero_grad()
