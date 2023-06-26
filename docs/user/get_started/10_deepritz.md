@@ -4,15 +4,12 @@ This section repeats the Deepritz method presented by [Weinan E and Bing Yu](htt
 
 Consider the 2d Poisson's equation such as the following:
 
-
 $$
 \begin{equation}
-
 \begin{aligned}
 -\Delta u=f, & \text { in } \Omega \\
 u=0, & \text { on } \partial \Omega
 \end{aligned}
-
 \end{equation}
 $$
 
@@ -63,7 +60,9 @@ $$
 The DeepRitz method is similar to the PINN approach, replacing the neural network with u, and after sampling the region, just solve it with a solver like Adam. Written as
 
 $$
+\begin{equation}
 \min _{\left.\hat{u}\right|_{\partial \Omega}=0} \hat{J}(\hat{u})=\frac{1}{2} \frac{S_{\Omega}}{N_{\Omega}} \sum\left\|\nabla \hat{u}\left(x_i, y_i\right)\right\|_2^2-\frac{S_{\Omega}}{N_{\partial \Omega}} \sum f\left(x_i, y_i\right) \hat{u}\left(x_i, y_i\right)
+\end{equation}
 $$
 
 Note that the original $u \in H_0^1$, which is zero on the boundary, is transformed into an unconstrained problem by adding the penalty function term:
@@ -121,4 +120,4 @@ integral = sc.ICNode("dxdy", dim=2, time=False)
 ```
 
 The result is shown as follows:
-![deepritz](../../images/deepritz.png)
+![deepritz](https://github.com/xiangzixuebit/picture/raw/3d73005f3642f10400975659479e856fb99f6518/deepritz.png)
