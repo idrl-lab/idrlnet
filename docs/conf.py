@@ -18,11 +18,11 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "idrlnet"
-copyright = "2021, IDRL"
+copyright = "2023, IDRL"
 author = "IDRL"
 
 # The full version, including alpha/beta/rc tags
-release = "0.0.1-rc3"
+release = "0.0.2-rc3"
 
 # -- General configuration ---------------------------------------------------
 
