@@ -5,7 +5,7 @@ This section repeats the Robust PINN method presented by [Peng et.al](https://de
 ## Steady 2D NS equations
 
 The prototype problem of incompressible flow past a circular cylinder is considered.
-![NS1](../../images/NS1.png)
+![image](https://github.com/xiangzixuebit/picture/raw/3d73005f3642f10400975659479e856fb99f6518/NS1.png)
 
 The velocity vector is set to zero at all walls and the pressure is set to p = 0 at the outlet. The fluid density is taken as $\rho = 1kg/m^3$ and the dynamic viscosity is taken as $\mu = 2 · 10^{−2}kg/m^3$ . The velocity profile on the inlet is set as $u(0, y)=4 \frac{U_M}{H^2}(H-y) y$ with $U_M = 1m/s$ and $H = 0.41m$.
 
@@ -27,7 +27,9 @@ $$
 We construct a neural network with six outputs to satisfy the PDE constraints above:
 
 $$
-u, v, p, \sigma^{11}, \sigma^{12}, \sigma^{22}=\operatorname{net}(x, y)
+\begin{equation}
+u, v, p, \sigma^{11}, \sigma^{12}, \sigma^{22}=net(x, y)
+\end{equation}
 $$
 
 ### Define Symbols and Geometric Objects
@@ -128,14 +130,14 @@ s = sc.Solver(sample_domains=(Inlet(), Outlet(), Wall(), Interior_domain(), NSEx
 ```
 
 The result is shown as follows:
-![NS11](../../images/NS11.png)
+![image](https://github.com/xiangzixuebit/picture/raw/3d73005f3642f10400975659479e856fb99f6518/NS11.png)
 
 ## Unsteady 2D N-S equations with unknown parameters
 
 A two-dimensional incompressible flow and dynamic vortex shedding past a circular cylinder in a steady-state are numerically simulated. Respectively, the Reynolds number of the incompressible flow is $Re = 100$. The kinematic viscosity of the fluid is $\nu = 0.01$. The cylinder diameter D is 1. The simulation domain size is
 $[[-15,25] × [[-8,8]$. 选定计算域为$[1,8] × [-2,2]× [0,20]$.
 
-![NS2](../../images/NS2.png)
+![image](https://github.com/xiangzixuebit/picture/raw/3d73005f3642f10400975659479e856fb99f6518/NS2.png)
 
 $$
 \begin{equation}
@@ -149,8 +151,11 @@ $$
 where $\lambda_1$ and $\lambda_2$ are two unknown parameters to be recovered. We make the assumption that $u=\psi_y, \quad v=-\psi_x$
 
 for some stream function $\psi(x, y)$. Under this assumption, the continuity equation will be automatically satisfied. The following architecture is used in this example,
+
 $$
-\psi, p=\operatorname{net}\left(t, x, y, \lambda_1, \lambda_2\right)
+\begin{equation}
+\psi, p=net\left(t, x, y, \lambda_1, \lambda_2\right)
+\end{equation}
 $$
 
 ### Define Symbols and Geometric Objects
@@ -219,4 +224,4 @@ s = sc.Solver(sample_domains=(NSExternal(), NSEq()),
 ```
 
 Finally, the real velocity field and pressure field at t=10s are compared with the predicted results:
-![NS22](../../images/NS22.png)
+![image](https://github.com/xiangzixuebit/picture/raw/3d73005f3642f10400975659479e856fb99f6518/NS22.png)
