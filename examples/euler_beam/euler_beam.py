@@ -63,8 +63,7 @@ solver = sc.Solver(
     ),
     netnodes=[net],
     pdes=[pde1, pde2, pde3, pde4],
-    max_iter=2000,
-)
+    max_iter=2000)
 solver.solve()
 
 

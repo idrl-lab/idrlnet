@@ -1,6 +1,5 @@
 transforms3d
 typing
-numpy
 keras
 h5py
 pandas
@@ -11,12 +10,13 @@ sphinx
 matplotlib
 myst_parser
 sphinx_markdown_parser
+numpy==1.21.0
 sphinx_rtd_theme==0.5.2
 tensorboard==2.4.1
 sympy==1.5.1
 pyevtk==1.1.1
 flask==1.1.2
 requests==2.25.0
-torch>=1.7.1
+torch==1.7.1
 networkx==2.5.1
 protobuf~=3.20

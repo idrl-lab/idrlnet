@@ -21,6 +21,7 @@ class Loss(enum.Enum):
 
     L1 = "L1"
     square = "square"
+    Identity = "Identity"
 
 
 class LossFunction:
@@ -32,6 +33,8 @@ class LossFunction:
             return LossFunction.weighted_L1_loss(variables, name=name)
         elif loss_function == Loss.square.name or loss_function == Loss.square:
             return LossFunction.weighted_square_loss(variables, name=name)
+        elif loss_function == Loss.Identity.name or loss_function == Loss.Identity:
+            return LossFunction.weighted_identity_loss(variables, name=name)
         raise NotImplementedError(f"loss function {loss_function} is not defined!")
 
     @staticmethod
@@ -60,6 +63,20 @@ class LossFunction:
                 )
             else:
                 loss += torch.sum((val ** 2) * variables["area"])
+        return Variables({name: loss})
+
+    @staticmethod
+    def weighted_identity_loss(variables: "Variables", name: str) -> "Variables":
+        loss = 0.0
+        for key, val in variables.items():
+            if key.startswith("lambda_") or key == "area":
+                continue
+            elif "lambda_" + key in variables.keys():
+                loss += torch.sum(
+                    val * variables["lambda_" + key] * variables["area"]
+                )
+            else:
+                loss += torch.sum(val * variables["area"])
         return Variables({name: loss})
 
 

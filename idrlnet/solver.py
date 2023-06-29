@@ -312,18 +312,37 @@ class Solver(Notifier, Optimizable):
         """
         self.notify(self, message={Signal.TRAIN_PIPE_START: "defaults"})
         for opt in self.optimizers:
-            opt.zero_grad()
+            # print('Running optimization with %s'%(self.optimizer_config['optimizer']))
+            if self.optimizer_config['optimizer'] == 'LBFGS':
+                def closure():
+                    opt.zero_grad()
+                    samples = self.sample_variables_from_domains()
+                    in_var, true_out, lambda_out = self.generate_in_out_dict(samples)
+                    pred_out_sample = self.forward_through_all_graph(in_var, self.outvar_dict_index)
+                    loss = self.compute_loss(in_var, pred_out_sample, true_out, lambda_out)
+                    self.notify(self, message={Signal.BEFORE_BACKWARD: 'defaults'})
+                    loss.backward()
+                    return loss
+                opt.step(closure)
+
+            else:
+                opt.zero_grad()
+                samples = self.sample_variables_from_domains()
+                in_var, true_out, lambda_out = self.generate_in_out_dict(samples)
+                pred_out_sample = self.forward_through_all_graph(in_var, self.outvar_dict_index)
+                try:
+                    loss = self.compute_loss(in_var, pred_out_sample, true_out, lambda_out)
+                except RuntimeError:
+                    raise
+                self.notify(self, message={Signal.BEFORE_BACKWARD: 'defaults'})
+                loss.backward()
+                opt.step()
+                
         samples = self.sample_variables_from_domains()
         in_var, true_out, lambda_out = self.generate_in_out_dict(samples)
         pred_out_sample = self.forward_through_all_graph(in_var, self.outvar_dict_index)
-        try:
-            loss = self.compute_loss(in_var, pred_out_sample, true_out, lambda_out)
-        except RuntimeError:
-            raise
-        self.notify(self, message={Signal.BEFORE_BACKWARD: "defaults"})
-        loss.backward()
-        for opt in self.optimizers:
-            opt.step()
+        loss = self.compute_loss(in_var, pred_out_sample, true_out, lambda_out)
+        
         self.global_step += 1
 
         for scheduler in self.schedulers:
