@@ -14,8 +14,8 @@ To make full use of IDRLnet. We strongly suggest following the following example
 6. :ref:`Parameterized poisson equation <Parameterized Poisson>`. The example introduces how to train a surrogate with parameters.
 7. :ref:`Variational Minimization <Variational Minimization>`. The example introduces how to solve variational minimization problems.
 8. :ref:`Volterra integral differential equation <Volterra Integral Differential Equation>`. The example introduces the way to solve IDEs.
-9. :ref:`Navier-Stokes equation <Navier-Stokes equation>`. The example introduces how to use the LBFGS optimizer.
-10. :ref:`Deepritz method <Deepritz method>`. The example introduces the way to solve PDEs with the Deepritz method.
+9. :ref:`Navier-Stokes equation <Navier-Stokes equations>`. The example introduces how to use the LBFGS optimizer.
+10. :ref:`Deepritz method <Deepritz>`. The example introduces the way to solve PDEs with the Deepritz method.
 
 
 

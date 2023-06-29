@@ -135,7 +135,7 @@ The result is shown as follows:
 ## Unsteady 2D N-S equations with unknown parameters
 
 A two-dimensional incompressible flow and dynamic vortex shedding past a circular cylinder in a steady-state are numerically simulated. Respectively, the Reynolds number of the incompressible flow is $Re = 100$. The kinematic viscosity of the fluid is $\nu = 0.01$. The cylinder diameter D is 1. The simulation domain size is
-$[[-15,25] × [[-8,8]$. 选定计算域为$[1,8] × [-2,2]× [0,20]$.
+$[-15,25] × [-8,8]$. The computational domain is much smaller: $[1,8] × [-2,2]× [0,20]$.
 
 ![image](https://github.com/xiangzixuebit/picture/raw/3d73005f3642f10400975659479e856fb99f6518/NS2.png)
 
