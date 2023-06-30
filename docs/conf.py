@@ -22,7 +22,7 @@ copyright = "2023, IDRL"
 author = "IDRL"
 
 # The full version, including alpha/beta/rc tags
-release = "0.0.2-rc3"
+release = "2.0.0-rc3"
 
 # -- General configuration ---------------------------------------------------
 
